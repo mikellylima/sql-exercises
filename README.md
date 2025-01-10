@@ -484,7 +484,12 @@ WHERE CompanyName IS NULL
 - Você é o gerente da área de compras e precisa criar um relatório com as TOP 100 vendas, de acordo com a quantidade vendida. Você precisa fazer isso em 10min pois o diretor de compras solicitou essa informação para apresentar em uma reunião. Utilize seu conhecimento em SQL para buscar essas TOP 100 vendas, de acordo com o total vendido (SalesAmount).
 
 ```sql
-
+SELECT 
+	TOP(100) * 
+FROM 
+	FactSales
+ORDER BY 
+	SalesQuantity DESC
 ```
 
 
@@ -493,7 +498,11 @@ WHERE CompanyName IS NULL
 O que você precisará fazer é ordenar esses top 10 produtos, de acordo com a coluna de UnitPrice e, além disso, estabelecer um critério de desempate, para que seja mostrado na ordem, do maior para o menor. Caso ainda assim haja um empate entre 2 ou mais produtos, pense em uma forma de criar um segundo critério de desempate (além do peso).
 
 ```sql
-
+SELECT 
+	TOP(10) *
+FROM 
+	DimProduct
+ORDER BY UnitPrice DESC, Weight DESC, AvailableForSaleDate
 ```
 
 
@@ -503,19 +512,35 @@ O que você precisará fazer é ordenar esses top 10 produtos, de acordo com a c
 - a) Você deverá retornar apenas 2 colunas nessa consulta: Nome do Produto e Peso.
 
 ```sql
-
+SELECT 
+	ProductName, 
+	Weight 
+FROM 
+	DimProduct
+WHERE Weight > 100
 ```
 
 - b) Renomeie essas colunas com nomes mais intuitivos.
 
 ```sql
-
+SELECT 
+	ProductName AS 'Nome do produto', 
+	Weight AS 'Peso'
+FROM 
+	DimProduct
+WHERE Weight > 100
 ```
 
 - c) Ordene esses produtos do mais pesado para o mais leve.
 
 ```sql
-
+SELECT 
+	ProductName AS 'Nome do produto', 
+	Weight AS 'Peso'
+FROM 
+	DimProduct
+WHERE Weight > 100
+ORDER BY Weight DESC
 ```
 
 
@@ -524,19 +549,38 @@ O que você precisará fazer é ordenar esses top 10 produtos, de acordo com a c
 - a) Descubra quantas lojas a empresa tem no total. Na consulta que você deverá fazer à tabela DimStore, retorne as seguintes informações: StoreName, OpenDate, EmployeeCount.
 
 ```sql
-
+SELECT DISTINCT StoreName FROM DimStore
+-- A Contoso tem 306 lojas
+SELECT 
+	StoreName, 
+	OpenDate, 
+	EmployeeCount
+FROM 
+	DimStore
 ```
 
 - b) Renomeeie as colunas anteriores para deixar a sua consulta mais intuitiva.
 
 ```sql
-
+SELECT 
+	StoreName AS 'Nome da loja', 
+	OpenDate AS 'Data de abertura', 
+	EmployeeCount AS 'Numero de funcionarios'
+FROM 
+	DimStore
 ```
 
 - c) Dessas lojas, descubra quantas (e quais) lojas ainda estão ativas.
 
 ```sql
-
+SELECT 
+	StoreName AS 'Nome da loja', 
+	OpenDate AS 'Data de abertura', 
+	EmployeeCount AS 'Numero de funcionarios',
+	Status
+FROM 
+	DimStore
+WHERE StoreType = 'Store' AND Status = 'On'
 ```
 
 
@@ -544,7 +588,11 @@ O que você precisará fazer é ordenar esses top 10 produtos, de acordo com a c
 - O gerente da área de controle de qualidade notificou à Contoso que todos os produtos Home Theater da marca Litware, disponibilizados para venda no dia 15 de março de 2009, foram identificados com defeitos de fábrica. O que você deverá fazer é identificar os ID’s desses produtos e repassar ao gerente para que ele possa notificar as lojas e consequentemente solicitar a suspensão das vendas desses produtos.
 
 ```sql
-
+SELECT 
+	*
+FROM 
+	DimProduct
+WHERE ProductName LIKE '%Home Theater%' AND BrandName = 'Litware' AND AvailableForSaleDate = '20090315'
 ```
 
 
@@ -553,13 +601,21 @@ O que você precisará fazer é ordenar esses top 10 produtos, de acordo com a c
 - a) Utilize a coluna de Status para filtrar a tabela e trazer apenas as lojas que não estão mais funcionando.
 
 ```sql
-
+SELECT 
+	* 
+FROM 
+	DimStore
+WHERE Status = 'Off'
 ```
 
 - b) Agora imagine que essa coluna de Status não existe na sua tabela. Qual seria a outra forma que você teria de descobrir quais são as lojas que não estão mais funcionando?
 
 ```sql
-
+SELECT 
+	* 
+FROM 
+	DimStore
+WHERE CloseDate IS NOT NULL
 ```
 
 
@@ -571,7 +627,23 @@ O que você precisará fazer é ordenar esses top 10 produtos, de acordo com a c
 	- CATEGORIA 3: Acima de 51 funcionários -> 3 máquinas de café
 
 ```sql
+-- CATEGORIA 1
+SELECT 
+	* 
+FROM 
+	DimStore
+WHERE EmployeeCount BETWEEN '1' AND '20'
+-- 75 LOJAS
 
+-- CATEGORIA 2
+SELECT * FROM DimStore
+WHERE EmployeeCount BETWEEN '21' AND '50'
+-- 187 LOJAS
+
+-- CATEGORIA 3
+SELECT * FROM DimStore
+WHERE EmployeeCount > 51
+-- 43 LOJAS
 ```
 
 
@@ -579,7 +651,13 @@ O que você precisará fazer é ordenar esses top 10 produtos, de acordo com a c
 - A empresa decidiu que todas as televisões de LCD receberão um super desconto no próximo mês. O seu trabalho é fazer uma consulta à tabela DimProduct e retornar os ID’s, Nomes e Preços de todos os produtos LCD existentes.
 
 ```sql
-
+SELECT 
+	ProductKey, 
+	ProductName, 
+	UnitPrice 
+FROM 
+	DimProduct
+WHERE ProductDescription LIKE '%LCD%'
 ```
 
 
@@ -587,7 +665,11 @@ O que você precisará fazer é ordenar esses top 10 produtos, de acordo com a c
 - Faça uma lista com todos os produtos das cores: Green, Orange, Black, Silver e Pink. Estes produtos devem ser exclusivamente das marcas: Contoso, Litware e Fabrikam.
 
 ```sql
-
+SELECT 
+	* 
+FROM 
+	DimProduct
+WHERE ColorName IN ('Green', 'Orange', 'Black', 'Silver', 'Pink') AND BrandName IN ('Contoso', 'Litware', 'Fabrikam')
 ```
 
 
@@ -595,12 +677,443 @@ O que você precisará fazer é ordenar esses top 10 produtos, de acordo com a c
 - A empresa possui 16 produtos da marca Contoso, da cor Silver e com um UnitPrice entre 10 e 30. Descubra quais são esses produtos e ordene o resultado em ordem decrescente de acordo com o preço (UnitPrice).
 
 ```sql
+SELECT 
+	ProductName, 
+	BrandName, 
+	ColorName, 
+	UnitPrice
+FROM 
+	DimProduct
+WHERE BrandName = 'Contoso' AND ColorName = 'Silver' AND UnitPrice BETWEEN '10' AND '30'
+ORDER BY UnitPrice DESC
+```
+
+-----------
+##  Módulo 6: Funções de Agregação
+
+### Aula 2: Função SUM
+- 1. Faça uma consulta que retorna a soma total de SalesQuantity e a soma total de ReturnQuantity.
+
+```sql
+SELECT
+	SUM(SalesQuantity) AS 'Total Vendido',
+	SUM(ReturnQuantity) AS 'Total Devolvido'
+FROM
+	FactSales
+```
+
+
+### Aula 3: Função COUNT
+- 1. Faça uma consulta que retorna a contagem total de produtos. Considere a coluna ProductName para este cálculo. Obs: A função COUNT não conta valores nulos da coluna, então tome cuidado com o resultado que você espera.
+
+```sql
+SELECT
+	COUNT(ProductName) AS 'Qtd. Produtos'
+FROM
+	DimProduct
+```
+
+- 2. Faça uma consulta que retorna a contagem total de produtos. Considere a coluna Size para este cálculo
+
+```sql
+SELECT
+	COUNT(Size) AS 'Qtd. Produtos'
+FROM
+	DimProduct
+```
+
+
+### Aula 4: Função COUNT mais DISTINCT
+- 1. Faça uma consulta que retorna a contagem distinta das marcas dos produtos
+
+```sql
+SELECT
+	COUNT(DISTINCT BrandName)
+FROM
+	DimProduct
+```
+
+
+### Aula 5: Funções MIN e MAX
+- 1. Faça uma consulta que retorna os valores máximo e mínimo de UnitCost.
+
+```sql
+SELECT
+	MAX(UnitCost) AS 'Custo Máximo',
+	MIN(UnitCost) AS 'Custo Mínimo'
+FROM
+	DimProduct
+```
+
+
+### Aula 6: Função AVG
+- 1. Faça uma consulta que retorna a média de YearlyIncome (média de salário) da tabela DimCustomer.
+
+```sql
+SELECT
+	AVG(YearlyIncome) AS 'Média Anual de Salário'
+FROM
+	DimCustomer
+```
+
+
+### Aula 8: Resolução Exercício 1
+- O gerente comercial pediu a você uma análise da Quantidade Vendida e Quantidade Devolvida para o canal de venda mais importante da empresa: Store. Utilize uma função SQL para fazer essas consultas no seu banco de dados. Obs: Faça essa análise considerando a tabela FactSales.
+
+```sql
+SELECT TOP(10) * FROM FactSales
+SELECT * FROM DimChannel
+
+SELECT 
+	SUM(SalesQuantity) AS 'Qtd. vendida',
+	SUM(ReturnQuantity) AS 'Qtd. devolvida'
+FROM
+	FactSales
+WHERE channelKey = '1'
+-- Resp: qtd. vendida = 29089448; qtd. devolvida = 274205
+```
+
+
+### Aula 9: Resolução Exercício 2
+- Uma nova ação no setor de Marketing precisará avaliar a média salarial de todos os clientes da empresa, mas apenas de ocupação Professional. Utilize um comando SQL para atingir esse resultado.
+
+```sql
+SELECT * FROM DimCustomer
+
+SELECT
+	AVG(YearlyIncome) AS 'Média salarial'
+FROM
+	DimCustomer
+WHERE Occupation = 'Professional'
+-- Resp: Média salarial de R$ 74184,7826
+```
+
+
+### Aula 10: Resolução Exercício 3
+- Você precisará fazer uma análise da quantidade de funcionários das lojas registradas na empresa. O seu gerente te pediu os seguintes números e informações:
+- a) Quantos funcionários tem a loja com mais funcionários?
+
+```sql
+SELECT
+	MAX(EmployeeCount)
+FROM
+	DimStore
+-- Resp: 325 funcionários
+```
+
+- b) Qual é o nome dessa loja?
+
+```sql
+SELECT
+	StoreName
+FROM
+	DimStore
+WHERE EmployeeCount = '325'
+
+-- outra forma
+SELECT
+	TOP(1)
+	StoreName AS 'Nome da Loja',
+	EmployeeCount AS 'Qtd. de funcionarios'
+FROM
+	DimStore
+ORDER BY EmployeeCount DESC
+```
+
+- c) Quantos funcionários tem a loja com menos funcionários?
+
+```sql
+SELECT
+	MIN(EmployeeCount)
+FROM
+	DimStore
+-- Resp: 7 funcionários
+```
+
+- d) Qual é o nome dessa loja?
+
+```sql
+SELECT
+	StoreName
+FROM
+	DimStore
+WHERE EmployeeCount = '7'
+
+-- outra forma
+SELECT
+	TOP(1)
+	StoreName AS 'Nome da Loja',
+	EmployeeCount AS 'Qtd. de funcionarios'
+FROM
+	DimStore
+WHERE EmployeeCount IS NOT NULL
+ORDER BY EmployeeCount
+-- Resp: Contoso Europe Online Store
+```
+
+
+### Aula 11: Resolução Exercício 4
+- A área de RH está com uma nova ação para a empresa, e para isso precisa saber a quantidade total de funcionários do sexo Masculino e do sexo Feminino.
+- a) Descubra essas duas informações utilizando o SQL.
+
+```sql
+SELECT
+	COUNT(Gender) AS 'Feminino'
+FROM
+	DimEmployee
+WHERE Gender =	'F'
+-- Resp: 87 funcionaris do sexo F
+
+SELECT
+	COUNT(Gender) AS 'Masculino'
+FROM
+	DimEmployee
+WHERE Gender =	'M'
+-- Resp: 206 funcionaris do sexo F
+```
+
+b) O funcionário e a funcionária mais antigos receberão uma homenagem. Descubra as seguintes informações de cada um deles: Nome, E-mail, Data de Contratação.
+
+```sql
+SELECT
+	TOP(1)
+	FirstName AS 'Nome', 
+	EmailAddress AS 'E-mail', 
+	HireDate AS 'Data de Contratação'
+FROM
+	DimEmployee
+WHERE Gender = 'F' 
+ORDER BY HireDate
+-- Resp: Terry, jolynn@contoso.com, HireDate = 1998-01-26
+
+SELECT
+	TOP(1)
+	FirstName AS 'Nome', 
+	EmailAddress AS 'E-mail', 
+	HireDate AS 'Data de Contratação'
+FROM
+	DimEmployee
+WHERE Gender = 'M' 
+ORDER BY HireDate
+-- Resp: Kim, guy1@contoso.com, HireDate = 1996-07-31
+```
+
+### Aula 12: Resolução Exercício 5
+- Agora você precisa fazer uma análise dos produtos. Será necessário descobrir as seguintes informações:
+- a) Quantidade distinta de cores de produtos.
+
+```sql
+SELECT
+	COUNT(DISTINCT ColorName)
+FROM
+	DimProduct
+-- Resp: 16 cores
+```
+
+- b) Quantidade distinta de marcas
+
+```sql
+SELECT
+	COUNT(DISTINCT BrandName)
+FROM
+	DimProduct
+-- Resp: 11 marcas
+```
+
+- c) Quantidade distinta de classes de produto
+
+```sql
+SELECT
+	COUNT(DISTINCT ClassName)
+FROM
+	DimProduct
+-- Resp: 3 classes
+```
+
+
+-------------
+## Módulo 7: Criando agrupamentos no SQL
+
+### Aula 2: Group By (Parte 1)
+
+```sql
+SELECT * FROM DimProduct
+
+SELECT
+	BrandName AS 'Nome da Marca',
+	COUNT(*) AS 'Qtd Total'
+FROM
+	DimProduct
+GROUP BY BrandName
+```
+
+
+### Aula 3: Group By (Parte 2)
+
+```sql
+-- Consulta 1
+SELECT * FROM DimStore
+
+SELECT
+	StoreType,
+	SUM(EmployeeCount) AS 'Qtd. Total Funcionários'
+FROM
+	DimStore
+GROUP BY StoreType
+
+-- Consulta 2
+SELECT * FROM DimProduct
+
+SELECT
+	BrandName,
+	AVG(UnitCost) AS 'Custo Médio'
+FROM
+	DimProduct
+GROUP BY BrandName
+
+
+-- Consulta 3
+SELECT * FROM DimProduct
+
+SELECT
+	ClassName AS 'Classe do Produto',
+	MAX(UnitPrice) AS 'Máximo Preço'
+FROM
+	DimProduct
+GROUP BY ClassName
+```
+
+
+### Aula 4 de 18: Group By + Order By
+
+```sql
+SELECT
+	StoreType,
+	SUM(EmployeeCount) AS 'Qtd. Total Funcionários'
+FROM
+	DimStore
+GROUP BY StoreType
+ORDER BY SUM(EmployeeCount) DESC
+```
+
+
+### Aula 5: Group By + Where
+
+```sql
+SELECT * FROM DimProduct
+
+SELECT
+	ColorName AS 'Cor do Produto',
+	COUNT(ColorName) AS 'Qtd. Total'
+FROM
+	DimProduct
+WHERE BrandName = 'Contoso'
+GROUP BY ColorName
+```
+
+
+### Aula 6: Group By + Having
+
+```sql
+SELECT
+	BrandName AS 'Marca',
+	COUNT(BrandName) AS 'Total Marca'
+FROM
+	DimProduct
+GROUP BY BrandName
+
+HAVING COUNT(BrandName) >= 200
+```
+
+
+### Aula 7: Where vs Having
+
+```sql
+SELECT
+	BrandName AS 'Marca',
+	COUNT(BrandName) AS 'Total Marca'
+FROM
+	DimProduct
+WHERE ClassName = 'Economy'     -- Filtra a tabela original, antes do agrupamento
+GROUP BY BrandName
+HAVING COUNT(BrandName) >= 200  -- Filtra a tabela depois de agrupada
+```
+
+
+### Aula 9: Resolução Exercício 1
+- 
+
+```sql
 
 ```
 
 
+### Aula 10: Resolução Exercício 2
+- 
+
+```sql
+
+```
 
 
+### Aula 11: Resolução Exercício 3
+- 
+
+```sql
+
+```
+
+
+### Aula 12: Resolução Exercício 4
+- 
+
+```sql
+
+```
+
+
+### Aula 13: Resolução Exercício 5
+- 
+
+```sql
+
+```
+
+
+### Aula 14: Resolução Exercício 1
+- 
+
+```sql
+
+```
+
+
+### Aula 9: Resolução Exercício 1
+- 
+
+```sql
+
+```
+
+
+### Aula 9: Resolução Exercício 1
+- 
+
+```sql
+
+```
+
+
+### Aula 9: Resolução Exercício 1
+- 
+
+```sql
+
+```
+
+```sql
+
+```
 
 
 ```sql
@@ -608,9 +1121,9 @@ O que você precisará fazer é ordenar esses top 10 produtos, de acordo com a c
 ```
 
 
+```sql
 
-
-
+```
 
 
 
