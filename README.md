@@ -2136,22 +2136,1014 @@ ORDER BY BrandName
 ------------
 ## Módulo 10: Variáveis
 
-### 
+### Aula 2: Tipos de Dados
 
 ```sql
+/* 
+Tipos de dados
 
+O tipo de dado é a maneira como o SQL consegue diferenciar cada valor dentro de um banco de dados.
+
+a) Inteiro 
+Exemplos:
+1, 100, 569
+
+Como o SQL entende um número inteiro: INT
+
+
+b) Decimal
+Exemplos:
+10.33, 90.91, 410.787
+
+Como o SQL entende um número decimal: FLOAT
+Como o SQL entende um número decimal: DECIMAL(N, M)
+
+N é a quantidade de dígitos que o númeto pode ter, incluindo casas decimais
+M é o número máximo de casas decimais
+
+
+c) Texto/String
+Exemplos:
+'Carla', 'Motorola', 'Pastel', '44'
+
+Como o SQL entende um texto: VARCHAR(N)
+
+N é o número de caracteres que o texto pode ter
+
+
+d) Data
+Exemplos:
+'01/01/2021', '23/03/2021'
+
+Como o SQL entende uma data/hora: DATETIME
+Como o SQL entende uma data: DATE
+
+*/
 ```
+
+### Aula 3: Operações Básicas
 
 ```sql
+-- Operações básicas
 
+SELECT 10 AS 'Número'
+
+SELECT 'Marcus' AS 'Nome'
+
+SELECT '21/06/2021' AS 'Data'
+
+-- Operações com números
+
+SELECT 10+20
+SELECT 20-5
+SELECT 31*40
+SELECT 431.0/23
+
+-- Operações com textos
+
+SELECT 'SQL' + ' ' + 'Impressionador'
+
+-- Operações com datas
+
+SELECT '21/03/2021' + 1
+```
+
+
+### Aula 4: SQL_VARIANT_PROPERTY - Identificando o tipo de um dado
+
+```sql
+SELECT 10 AS 'Número'
+SELECT 49.50 AS 'Decimal'
+SELECT 'Marcus' AS 'Nome'
+SELECT '20/06/2021' AS 'Data'
+
+SELECT SQL_VARIANT_PROPERTY(10, 'BaseType')
+SELECT SQL_VARIANT_PROPERTY(49.50, 'BaseType')
+SELECT SQL_VARIANT_PROPERTY('Marcus', 'BaseType')
+SELECT SQL_VARIANT_PROPERTY('20/06/2021', 'BaseType')
+```
+
+
+### Aula 5: CAST - Especificando o tipo de um dado
+
+```sql
+-- 1) CAST: Função para especificar o tipo dos valores.
+-- int: inteiro, float: decimal, varchar: string/texto, datetime: data e hora
+
+SELECT CAST(21.45 AS int)
+
+SELECT CAST(21.45 AS float)
+
+SELECT CAST(18.7 AS varchar)
+
+SELECT CAST('15.6' AS float)
+
+SELECT CAST('31/05/2014' AS datetime)
+
+
+-- Exemplo 1: Crie uma consulta juntando o texto 'O preço do produto é: ' com o valor 30.99
+
+SELECT 'O preço do produto é: ' + CAST(30.99 AS VARCHAR(30))
+
+-- Exemplo 2: Adicione 1 dia à data '20/06/2021'
+
+SELECT CAST('20/06/2021' AS DATETIME) + 1
+```
+
+
+### Aula 6: FORMAT - Formatação de dados personalizada
+
+```sql
+--FORMAT: Função para formatação de valores no SQL
+
+-- a) Numéricos:
+SELECT FORMAT(1000, 'N')
+SELECT FORMAT(1000, 'G')
+
+-- b) Personalizados:
+SELECT FORMAT(123456789, '###-##-####')
+
+-- c) Data:
+SELECT FORMAT(CAST('21/03/2021' AS DATETIME), 'dd/MM/yyyy')
+
+
+-- SQL_VARIANT_PROPERTY
+SELECT SQL_VARIANT_PROPERTY('31/05/2014', 'BaseType')
+SELECT SQL_VARIANT_PROPERTY(CAST('31/05/2014' AS datetime), 'BaseType')
+```
+
+
+### Aula 7: ROUND, FLOOR e CEILING - Funções de Arredondamento
+
+```sql
+-- Operações com números
+
+SELECT 10+20
+SELECT 20-5
+SELECT 31*40
+SELECT 431.0/23
+
+-- ROUND
+
+SELECT ROUND(18.739130, 2)
+
+-- ROUND (Truncar)
+
+SELECT ROUND(18.739130, 2, 1)
+
+-- FLOOR
+
+SELECT FLOOR(18.739130)
+
+-- CEILING
+
+SELECT CEILING(18.739130)
 ```
 
 
 
+### Aula 8: DECLARE e SET Declarando uma variável
+
+```sql
+/* 
+Declarando Variáveis 
+
+1) O que é uma variável?
+Uma variável é um objeto que armazena o valor de um dado.
+
+2. Estrutura
+
+DECLARE @var tipo
+SET @var = valor
+
+
+DECLARE @var1 INT, @var2 INT,
+	 @texto VARCHAR(MAX),
+	 @data DATETIME
+	
+SET @var1 = 10
+SET @var1 = 45
+SET @texto = 'Um texto qualquer'
+SET @data = '18/02/2021'
+
+*/
+
+SELECT 100 * 8.99 AS 'faturamento'
+
+DECLARE @quantidade AS int, @preco AS float
+SET @quantidade = 100
+SET @preco = 8.99
+
+SELECT @quantidade * @preco AS 'faturamento'
+
+-- Exemplo 1: Declare uma variável chamada 'idade' e armazene o valor 30
+
+DECLARE @idade AS INT
+
+SET @idade = 30
+
+SELECT @idade
+
+-- Exemplo 2: Declare uma variável chamada 'preco' e armazene o valor 10.89
+
+DECLARE @preco AS float
+SET @preco = 10.89
+SELECT @preco
+
+DECLARE @preco2 AS decimal(5, 2)
+SET @preco2 = 10.89
+SELECT @preco2
 
 
 
+-- Exemplo 3: Declare uma variável chamada 'nome' e armazene o valor 'Mateus'
 
+DECLARE @nome AS varchar(50)
+SET @nome = 'Mateus'
+SELECT @nome
+
+-- Exemplo 4: Declare uma variável chamada 'data' e armazene a data de hoje.
+
+DECLARE @data AS datetime
+SET @data = '2021-10-28'
+SELECT @data
+
+SELECT DAY(@data)
+```
+
+
+### Aula 11: Utilizando uma variável em uma consulta (Parte 1)
+
+```sql
+-- Aplique um desconto de 10% em todos os preços dos produtos. Sua consulta final deve conter as colunas ProductKey, ProductName, UnitPrice e Preço com Desconto. 
+
+DECLARE @varDesconto FLOAT
+SET @varDesconto = 0.1
+
+SELECT 
+	ProductKey AS 'ID',
+	ProductName AS 'Nome do Produto',
+	UnitPrice AS 'Preço',
+	UnitPrice * (1 - @varDesconto) AS 'Preço com Desconto'
+FROM
+	DimProduct
+```
+
+
+### Aula 12: Utilizando uma variável em uma consulta (Parte 2)
+
+```sql
+-- Crie uma variável de data para otimizar a consulta abaixo. 
+
+DECLARE @varData DATETIME
+SET @varData = '01/01/1980'
+
+SELECT 
+	FirstName AS 'Nome',
+	LastName AS 'Sobrenome',
+	BirthDate AS 'Nascimento',
+	'Cliente' AS 'Tipo'
+FROM	
+	DimCustomer
+WHERE BirthDate >= @varData
+
+UNION
+
+SELECT 
+	FirstName AS 'Nome',
+	LastName AS 'Sobrenome',
+	BirthDate AS 'Nascimento',
+	'Funcionário' AS 'Tipo'
+FROM	
+	DimEmployee
+WHERE BirthDate >= @varData
+ORDER BY Nascimento
+```
+
+
+### Aula 13: Armazenando o resultado de um SELECT em uma variável
+
+```sql
+-- Exemplo 1: Crie uma variável para armazenar a quantidade total de funcionários da tabela DimEmployee.
+
+DECLARE @varTotalFuncionarios INT
+SET @varTotalFuncionarios = (SELECT COUNT(*) FROM DimEmployee)
+SELECT @varTotalFuncionarios
+
+
+-- Exemplo 2: Crie uma variável para armazenar a quantidade total de lojas com o status Off.
+
+DECLARE @varLojasOff INT
+SET @varLojasOff = (SELECT COUNT(*) FROM DimStore WHERE Status = 'Off')
+SELECT @varLojasOff
+```
+
+
+### Aula 14: PRINT - Printando uma mensagem na tela
+
+```sql
+-- Exemplo 1: Printe na tela a quantidade de lojas On e a quantidade  de lojas Off da tabela DimStore. Utilize variáveis para isso.
+
+DECLARE @varLojasOn INT, @varLojasOff INT
+SET @varLojasOn = (SELECT COUNT(*) FROM DimStore WHERE Status = 'On')
+SET @varLojasOff = (SELECT COUNT(*) FROM DimStore WHERE Status = 'Off')
+
+SELECT @varLojasOn AS 'Lojas Abertas', @varLojasOff AS 'Lojas Fechadas'
+
+PRINT 'O total de lojas abertas é de ' + CAST(@varLojasOn AS VARCHAR(30))
+PRINT 'O total de lojas fechadas é de ' + CAST(@varLojasOff AS VARCHAR(30))
+```
+
+
+### Aula 15: Armazenando em uma variável um registro de uma consulta
+
+```sql
+-- Exemplo 1: Qual é o nome do produto que teve a maior quantidade vendida EM UMA ÚNICA VENDA da tabela FactSales?
+
+DECLARE @varProdutoMaisVendido INT
+DECLARE @varTotalMaisVendido INT
+
+SELECT TOP(1)
+	@varProdutoMaisVendido = ProductKey,
+	@varTotalMaisVendido = SalesQuantity
+FROM
+	FactSales
+ORDER BY SalesQuantity DESC
+
+PRINT @varProdutoMaisVendido
+PRINT @varTotalMaisVendido
+
+SELECT
+	ProductKey,
+	ProductName
+FROM
+	DimProduct
+WHERE ProductKey = @varProdutoMaisVendido
+```
+
+
+### Aula 16: Acumulando valores dentro de uma variável
+
+```sql
+-- Exemplo 1: Retorne uma lista com os nomes dos funcionários do departamento de Marketing
+DECLARE @ListaNomes VARCHAR(MAX)
+SET @ListaNomes = ''
+
+SELECT
+	@ListaNomes = @ListaNomes + FirstName + ', ' + CHAR(10)
+FROM
+	DimEmployee
+WHERE DepartmentName = 'Marketing'
+
+PRINT LEFT(@ListaNomes, DATALENGTH(@ListaNomes) - 3)
+```
+
+
+### Aula 17: Variáveis Globais
+
+```sql
+SELECT @@SERVERNAME
+SELECT @@VERSION
+
+SELECT * FROM DimProduct
+SELECT @@ROWCOUNT
+```
+
+
+### Aula 19: Resolução Exercício 1
+- Declare 4 variáveis inteiras. Atribua os seguintes valores a elas:
+	- valor1 = 10
+	- valor2 = 5
+	- valor3 = 34
+	- valor4 = 7
+- a) Crie uma nova variável para armazenar o resultado da soma entre valor1 e valor2. Chame essa variável de soma.
+
+```sql
+DECLARE @valor1 INT = 10,
+	@valor2 INT = 5,
+	@valor3 INT = 34,
+	@valor4 INT = 7
+
+DECLARE @soma INT = (SELECT @valor1 + @valor2)
+SELECT @soma
+```
+
+- b) Crie uma nova variável para armazenar o resultado da subtração entre valor3 e valor 4. Chame essa variável de subtracao.
+
+```sql
+DECLARE @valor1 INT = 10,
+	@valor2 INT = 5,
+	@valor3 INT = 34,
+	@valor4 INT = 7
+
+DECLARE @subtracao INT = (SELECT @valor3 - @valor4)
+SELECT @subtracao
+```
+
+- c) Crie uma nova variável para armazenar o resultado da multiplicação entre o valor 1 e o valor4. Chame essa variável de multiplicacao.
+
+```sql
+DECLARE @valor1 INT = 10,
+	@valor2 INT = 5,
+	@valor3 INT = 34,
+	@valor4 INT = 7
+
+DECLARE @multiplicacao INT = (SELECT @valor1 * @valor4)
+SELECT @multiplicacao
+```
+
+- d) Crie uma nova variável para armazenar o resultado da divisão do valor3 pelo valor4. Chame essa variável de divisao. Obs: O resultado deverá estar em decimal, e não em inteiro.
+
+```sql
+DECLARE @valor1 INT = 10,
+	@valor2 INT = 5,
+	@valor3 INT = 34,
+	@valor4 INT = 7
+
+DECLARE @divisao FLOAT = (SELECT CAST(@valor3 AS FLOAT) / CAST(@valor4 AS FLOAT))
+SELECT CAST(@divisao AS FLOAT)
+```
+
+- e) Arredonde o resultado da letra d) para 2 casas decimais.
+
+```sql
+DECLARE @valor1 INT = 10,
+	@valor2 INT = 5,
+	@valor3 INT = 34,
+	@valor4 INT = 7
+
+DECLARE @divisao FLOAT = (SELECT CAST(@valor3 AS FLOAT) / CAST(@valor4 AS FLOAT))
+SELECT ROUND(CAST(@divisao AS FLOAT), 2)
+```
+
+
+### Aula 20: Resolução Exercício 2
+- Para cada declaração das variáveis abaixo, atenção em relação ao tipo de dado que deverá ser especificado.
+- a) Declare uma variável chamada ‘produto’ e atribua o valor de ‘Celular’.
+
+```sql
+DECLARE @produto VARCHAR(30) = 'Celular'
+SELECT @produto
+```
+
+- b) Declare uma variável chamada ‘quantidade’ e atribua o valor de 12.
+
+```sql
+DECLARE @quantidade INT = 12
+SELECT @quantidade
+```
+
+- c) Declare uma variável chamada ‘preco’ e atribua o valor 9.99.
+
+```sql
+DECLARE @preco FLOAT = 9.99
+SELECT @preco
+```
+
+- d) Declare uma variável chamada ‘faturamento’ e atribua o resultado da multiplicação entre ‘quantidade’ e ‘preco’.
+
+```sql
+DECLARE @faturamento FLOAT = (SELECT @quantidade * @preco)
+SELECT @faturamento
+```
+
+- e) Visualize o resultado dessas 4 variáveis em uma única consulta, por meio do SELECT.
+
+```sql
+SELECT @produto, @quantidade, @preco, @quantidade
+```
+
+
+### Aula 21: Resolução Exercício 3
+- Você é responsável por gerenciar um banco de dados onde são recebidos dados externos de usuários. Em resumo, esses dados são:
+	- Nome do usuário
+	- Data de nascimento
+	- Quantidade de pets que aquele usuário possui
+- Você precisará criar um código em SQL capaz de juntar as informações fornecidas por este usuário. Para simular estes dados, crie 3 variáveis, chamadas: nome, data_nascimento e num_pets. Você deverá armazenar os valores ‘André’, ‘10/02/1998’ e 2, respectivamente. O resultado final a ser alcançado é mostrado no print abaixo:
+![image](https://github.com/user-attachments/assets/81a39dbe-535d-490c-92f9-9842acf0b724)
+- Dica: você precisará utilizar as funções CAST e FORMAT para chegar no resultado.
+
+```sql
+DECLARE @nome VARCHAR(30) = 'André',
+		@data_nascimento DATETIME = '10/02/1998',
+		@num_pets INT = 2
+
+SELECT 'Meu nome é ' + @nome + ', nasci em ' + 
+		FORMAT(@data_nascimento, 'dd/MM/yyyy') + ' e tenho ' + 
+		CAST(@num_pets AS VARCHAR(30)) + ' pets.'
+```
+
+
+### Aula 22: Resolução Exercício 4
+- Você acabou de ser promovido e o seu papel será realizar um controle de qualidade sobre as lojas da empresa. A primeira informação que é passada a você é que o ano de 2008 foi bem complicado para a empresa, pois foi quando duas das principais lojas fecharam. O seu primeiro desafio é descobrir o nome dessas lojas que fecharam no ano de 2008, para que você possa entender o motivo e mapear planos de ação para evitar que outras lojas importantes tomem o mesmo caminho. O seu resultado deverá estar estruturado em uma frase, com a seguinte estrutura: ‘As lojas fechadas no ano de 2008 foram: ’ + nome_das_lojas. Obs: utilize o comando PRINT (e não o SELECT!) para mostrar o resultado.
+
+```sql
+SELECT * FROM DimStore
+SELECT * FROM DimProductSubcategory
+
+SELECT StoreName, CloseDate FROM DimStore
+WHERE FORMAT(CloseDate, 'yyyy') = 2008
+
+DECLARE @varLojas VARCHAR(50)
+SET @varLojas = ''
+
+SELECT 
+	@varLojas = @varLojas + StoreName + ', '
+FROM
+	DimStore
+WHERE FORMAT(CloseDate, 'yyyy') = 2008
+
+PRINT 'As lojas fechadas no ano de 2008 foram: ' + @varLojas
+```
+
+
+### Aula 23: Resolução Exercício 5
+- Você precisa criar uma consulta para mostrar a lista de produtos da tabela DimProduct para uma subcategoria específica: ‘Lamps’. Utilize o conceito de variáveis para chegar neste resultado.
+
+```sql
+SELECT * FROM DimProduct
+SELECT * FROM DimProductSubcategory
+
+DECLARE	@idSubcategoria INT
+DECLARE @subcategoria VARCHAR(20)
+
+SET @subcategoria = 'Lamps'
+SET @idSubcategoria = (SELECT ProductSubcategoryKey FROM DimProductSubcategory WHERE ProductSubcategoryName = @subcategoria)
+
+SELECT
+	*
+FROM
+	DimProduct
+WHERE ProductSubcategoryKey = @idSubcategoria
+```
+
+
+-------------
+## Módulo 11: 
+
+### Aula 2: LEN e DATALENGTH
+
+```sql
+-- Exemplo: Descubra a quantidade de caracteres da palavra 'SQL Hashtag'
+
+SELECT
+	LEN('SQL Hashtag') AS 'Len',
+	DATALENGTH('SQL Hashtag') AS 'Datalength'
+```
+
+
+### Aula 3: CONCAT
+
+```sql
+-- CONCAT ---> Permite juntar mais de um texto em uma única palavra
+-- Exemplo: Faça uma consulta à tabela DimCustomer onde seja possível visualizar o nome completo de cada cliente.
+
+SELECT
+	FirstName AS 'Nome',
+	LastName AS 'Sobrenome',
+	EmailAddress AS 'E-mail',
+	CONCAT(FirstName, ' ', LastName) AS 'Nome Completo'
+FROM
+	DimCustomer
+```
+
+
+### Aula 4: LEFT e RIGHT
+
+```sql
+-- LEFT ---> Extrai uma determinada quantidade de caracteres de um texto, da esquerda para a direita
+-- RIGHT ---> Extrai uma determinada quantidade de caracteres de um texto, da direita para a esquerda
+-- Exemplo: Faça uma consulta à tabela DimProduct e divida a coluna de StyleName em 2 partes
+
+SELECT * FROM DimProduct
+SELECT
+	ProductName AS 'Produto',
+	UnitPrice AS 'Preço',
+	LEFT(StyleName, 7) AS 'Cod 1',
+	RIGHT(StyleName, 7) AS 'Cod 2'
+FROM
+	DimProduct
+```
+
+
+### Aula 5 e 6: REPLACE (Parte 1 e 2)
+
+```sql
+-- REPLACE ---> Substitui um determinado texto por outro texto
+
+-- Exemplo: Crie uma consulta a partir de DimCustomer onde você retorna o Nome Completo dos Clientes, a coluna de Sexo (Abrev) e uma outra coluna de Sexo substituindo M por Masculino e F por Feminino
+
+SELECT * FROM DimCustomer
+SELECT
+	CONCAT(FirstName, ' ', LastName) AS 'Nome Completo',
+	Gender AS 'Sexo (Abrev)',
+	REPLACE(REPLACE(Gender, 'M', 'Masculino'), 'F', 'Feminino') AS 'Sexo (Extenso)'
+FROM
+	DimCustomer
+```
+
+
+### Aula 7: TRANSLATE e STUFF
+
+```sql
+-- TRANSLATE e STUFF: Outras funções de substituição
+
+SELECT TRANSLATE('3*[2+1]/{8-4}', '[]{}', '()()')
+
+SELECT TRANSLATE('ABCD-490123', 'ABCD', 'WXYZ')
+
+SELECT STUFF('VBA Impressionador', 1, 3, 'Excel')
+```
+
+
+### Aula 8: UPPER e LOWER
+
+```sql
+-- UPPER ---> Transforma um texto em maiúscula
+-- LOWER ---> Transforma um texto em minúscula
+-- Exemplo: Faça uma consulta à tabela DimCustomer e utilize as funções UPPER e LOWER na coluna de FirstName para observar o resultado
+
+SELECT * FROM DimCustomer
+SELECT
+	UPPER(FirstName) AS 'NOME',
+	LOWER(FirstName) AS 'nome',
+	EmailAddress AS 'E-mail'
+FROM
+	DimCustomer
+```
+
+
+### Aula 9: FORMAT
+
+```sql
+--SELECT * FROM DimCustomer
+
+-- Formatação de Data
+SELECT 
+	GETDATE() AS 'Data',
+	FORMAT(GETDATE(),'dd/MMMM/yyyy','pt-br') AS 'Data Formatada'
+
+-- Formatação de Número
+SELECT 
+	50123 AS 'Número',
+	FORMAT(5123, '000000.00') AS 'Número Formatado'
+
+-- Formatação de Moeda
+SELECT 
+	3670.5 AS 'Moeda',
+	FORMAT(5670.5, 'R$####.00') AS 'Moeda Formatada'
+
+
+-- Formatar as colunas de Data de Nascimento e Renda Anual da tabela DimCustomer, de acordo com as formatações aprendidas.
+
+SELECT
+	FirstName AS 'Nome',
+	BirthDate AS 'Data de Nascimento',
+	FORMAT(BirthDate, 'dd/MMMM/yyyy', 'pt-BR') AS 'Data Formatada',
+	YearlyIncome AS 'Renda Anual',
+	FORMAT(YearlyIncome, 'R$##,###.00') AS 'Renda Anual Formatada'
+FROM
+	DimCustomer
+```
+
+
+### Aula 10, 11 e 12: CHARINDEX e SUBSTRING
+
+```sql
+-- CHARINDEX: Descobre a posição de um determinado caractere dentro de um texto
+-- SUBSTRING: Extrai alguns caracteres de dentro de um texto
+
+SELECT CHARINDEX('Moreno', 'Raquel Moreno') AS 'Posição Sobrenome'
+
+SELECT SUBSTRING('Raquel Moreno', 8, 6) AS 'Sobrenome'
+
+
+SELECT 'Marcus Cavalcanti' AS 'Nome'
+
+SELECT CHARINDEX(' ', 'Marcus Cavalcanti') AS 'Posição'
+
+SELECT SUBSTRING('Marcus Cavalcanti', CHARINDEX(' ', 'Marcus Cavalcanti') + 1, 100) AS 'Sobrenome'
+```
+
+
+### Aula 13: TRIM, LTRIM e RTRIM
+
+```sql
+-- Funções para retirar espaços adicionais dentro de um texto
+-- TRIM: Retira espaços adicionais à esquerda e à direita do texto
+-- LTRIM: Retira espaços adicionais à esquerda do texto
+-- RTRIM: Retira espaços adicionais à direita do texto
+
+-- Utilize as funções acima no código '   ABC123   '
+
+DECLARE @varCodigo VARCHAR(50)
+SET @varCodigo = '   ABC123   '
+
+SELECT
+	TRIM(@varCodigo) AS 'Trim',
+	LTRIM(@varCodigo) AS 'Ltrim',
+	RTRIM(@varCodigo) AS 'Rtrim'
+
+SELECT
+	DATALENGTH(TRIM(@varCodigo)) AS 'Trim',
+	DATALENGTH(LTRIM(@varCodigo)) AS 'Ltrim',
+	DATALENGTH(RTRIM(@varCodigo)) AS 'Rtrim'
+```
+
+
+### Aula 14: DAY, MONTH, YEAR e DATEFROMPARTS
+
+```sql
+-- Utilize as funções DAY, MONTH e YEAR para descobrir o dia, mês e ano da data: 18/05/2020
+
+DECLARE @varData DATETIME
+SET @varData = '18/05/2020'
+
+SELECT
+	DAY(@varData) AS 'Dia',
+	MONTH(@varData) AS 'Mês',
+	YEAR(@varData) AS 'Ano'
+
+
+-- Utilize a função DATEFROMPARTS para obter uma data a partir das informações de dia, mês e ano
+
+DECLARE @varDia INT, @varMes INT, @varAno INT
+SET @varDia = 29
+SET @varMes = 12
+SET @varAno = 2020
+
+SELECT
+	DATEFROMPARTS(@varAno, @varMes, @varDia) AS 'Data'
+```
+
+
+### Aula 15: GETDATE, SYSDATETIME, DATEPART e DATENAME
+
+```sql
+-- GETDATE: Retorna a data/hora atual do sistema
+-- SYSDATETIME: Retorna a data/hora atual do sistema (mais preciso que a GETDATE)
+-- DATENAME e DATEPART: Retornam informações (dia, mês, ano, semana, etc) de uma data
+
+SELECT GETDATE()
+SELECT SYSDATETIME()
+
+-- DATENAME: Retorna o resultado em formato de TEXTO
+
+DECLARE @varData DATETIME
+SET @varData = GETDATE()
+SELECT
+	DATENAME(DAY, @varData) AS 'Dia',
+	DATENAME(MONTH, @varData) AS 'Mês',
+	DATENAME(YEAR, @varData) AS 'Ano',
+	DATENAME(DAYOFYEAR, @varData) AS 'Dia do ano'
+
+-- DATEPART: Retorna o resultado em formato de NÚMERO
+
+DECLARE @varData DATETIME
+SET @varData = GETDATE()
+SELECT
+	DATEPART(DAY, @varData) AS 'Dia',
+	DATEPART(MONTH, @varData) AS 'Mês',
+	DATEPART(YEAR, @varData) AS 'Ano',
+	DATEPART(DAYOFYEAR, @varData) AS 'Dia do ano'
+
+SELECT
+	SQL_VARIANT_PROPERTY(DATENAME(DAY, @varData), 'BaseType'),
+	SQL_VARIANT_PROPERTY(DATEPART(DAY, @varData), 'BaseType')
+```
+
+
+### Aula 16: DATEADD e DATEDIFF
+
+```sql
+-- DATEADD: Adiciona ou subtrai uma determinada quantidade de dias, meses ou anos a uma data
+-- DATEDIFF: Calcula a diferença entre duas datas
+
+DECLARE @varData1 DATETIME, @varData2 DATETIME, @varData3 DATETIME
+SET @varData1 = '10/07/2020'
+SET @varData2 = '05/03/2020'
+SET @varData3 = '14/11/2021'
+
+-- DATEADD
+SELECT
+	DATEADD(MONTH, -1, @varData1)
+
+-- DATEDIFF
+SELECT
+	DATEDIFF(MONTH, @varData2, @varData3)
+```
+
+
+### Aula 18: Resolução Exercício 1
+- Quando estamos manipulando tabelas, é importante pensar em como os dados serão apresentados em um relatório. Imagine os nomes dos produtos da tabela DimProduct. Os
+textos são bem grandes e pode ser que mostrar os nomes completos dos produtos não seja a opção mais interessante, pois provavelmente não vão caber em um gráfico e a visualização ficará ruim.
+- a) Seu gestor te pede para listar todos os produtos para que seja criado um gráfico para ser apresentado na reunião diária de equipe. Faça uma consulta à tabela DimProduct que retorne (1) o nome do produto e (2) a quantidade de caracteres que cada produto tem, e ordene essa tabela do produto com a maior quantidade de caracteres para a menor.
+
+```sql
+SELECT
+	ProductName AS 'Nome do Produto',
+	BrandName,
+	ColorName,
+	LEN(ProductName) AS 'Caracter Produto'
+FROM
+	DimProduct
+ORDER BY LEN(ProductName) DESC
+```
+
+- b) Qual é a média de caracteres dos nomes dos produtos?
+
+```sql
+SELECT
+	AVG(LEN(ProductName)) AS 'Média dos Caracteres'
+FROM
+	DimProduct
+```
+
+- c) Analise a estrutura dos nomes dos produtos e verifique se seria possível reduzir o tamanho do nome dos produtos. (Dica: existem informações redundantes nos nomes dos produtos? Seria possível substituí-las?)
+
+```sql
+SELECT * FROM DimProduct
+
+SELECT
+	BrandName,
+	ColorName,
+	ProductName AS 'Nome do Produto',
+	SUBSTRING(
+		LEFT(
+			ProductName, 
+			LEN(ProductName)-LEN(ColorName)-1
+		),
+		LEN(BrandName)+1,100
+	) AS 'Nome do Produto Compacto'
+FROm
+	DimProduct
+
+-- Teacher's solution
+SELECT
+	BrandName,
+	ColorName,
+	REPLACE(REPLACE(ProductName, BrandName, ''), ColorName, '') AS 'Nome do Produto Compacto'
+FROm
+	DimProduct
+```
+
+d) Qual é a média de caracteres nesse novo cenário?
+
+```sql
+SELECT
+	AVG(LEN(
+		SUBSTRING(
+			LEFT(
+				ProductName, 
+				LEN(ProductName)-LEN(ColorName)-1),
+			LEN(BrandName)+1,100
+		)
+	)) AS 'Media'
+FROM
+	DimProduct
+
+-- Teacher's solution
+SELECT
+	AVG(LEN(REPLACE(REPLACE(ProductName, BrandName, ''), ColorName, ''))) AS 'Nome do Produto Compacto'
+FROm
+	DimProduct
+```
+
+
+### Aula 19: Resolução Exercício 2
+- A coluna StyleName da tabela DimProduct possui alguns códigos identificados por números distintos, que vão de 0 até 9, como pode ser visto no exemplo abaixo.
+![image](https://github.com/user-attachments/assets/0a90dd34-fab7-4cea-8d8a-47a4cbcbe64c)
+- Porém, o setor de controle decidiu alterar a identificação do StyleName, e em vez de usar números, a ideia agora é passar a usar letras para substituir os números, conforme exemplo abaixo:
+- 0 -> A, 1 -> B, 2 -> C, 3 -> D, 4 -> E, 5 -> F, 6 -> G, 7 -> H, 8 -> I, 9 - J
+- É de sua responsabilidade alterar os números por letras na coluna StyleName da tabela DimProduct. Utilize uma função que permita fazer essas substituições de forma prática e rápida.
+
+```sql
+SELECT * FROM DimProduct
+
+SELECT
+	StyleName,
+	TRANSLATE(StyleName, '0123456789', 'ABCDEFGHIJ') AS 'Nova StyleName'
+FROM
+	DimProduct
+```
+
+
+### Aula 20: Resolução Exercício 3
+- O setor de TI está criando um sistema para acompanhamento individual de cada funcionário da empresa Contoso. Cada funcionário receberá um login e senha. O login de cada funcionário será o ID do e-mail, como no exemplo abaixo:
+![image](https://github.com/user-attachments/assets/0ce3ac30-ba08-456a-920a-931ee9d4393d)
+- Já a senha será o FirtName + o dia do ano em que o funcionário nasceu, em MAIÚSCULA. Por exemplo, o funcionário com E-mail: mark0@contoso.com e data de nascimento 15/01/1990 deverá ter a seguinte senha:
+	- Login: mark0
+	- Senha: MARK15
+- O responsável pelo TI pediu a sua ajuda para retornar uma tabela contendo as seguintes colunas da tabela DimEmployee: Nome completo (FirstName + LastName), E-mail, ID do e-mail e Senha. Portanto, faça uma consulta à tabela DimProduct e retorne esse resultado.
+
+```sql
+SELECT * FROM DimEmployee
+
+SELECT
+	CONCAT(FirstName, ' ', LastName) AS 'Nome Completo',
+	EmailAddress AS 'E-mail',
+	LEFT(EmailAddress, CHARINDEX('@', EmailAddress)-1) AS 'ID do e-mail',
+	CONCAT(UPPER(FirstName), DATENAME(DAY, BirthDate)) AS 'Senha'
+FROM
+	DimEmployee
+```
+
+
+### Aula 21: Resolução Exercício 4
+- A tabela DimCustomer possui o primeiro registro de vendas no ano de 2001. Como forma de reconhecer os clientes que compraram nesse ano, o setor de Marketing solicitou a você que retornasse uma tabela com todos os clientes que fizeram a sua primeira compra neste ano para que seja enviado uma encomenda com um presente para cada um. Para fazer esse filtro, você pode utilizar a coluna DateFirstPurchase, que contém a informação da data da primeira compra de cada cliente na tabela DimCustomer. Você deverá retornar as colunas de FirstName, EmailAddress, AddressLine1 e DateFirstPurchase da tabela DimCustomer, considerando apenas os clientes que fizeram a primeira compra no ano de 2001.
+
+```sql
+SELECT * FROM DimCustomer
+
+-- FORMAT
+SELECT
+	FirstName,
+	EmailAddress,
+	AddressLine1,
+	DateFirstPurchase
+FROM
+	DimCustomer
+WHERE FORMAT(DateFirstPurchase, 'yyyy') = 2001
+
+-- YEAR
+SELECT
+	FirstName,
+	EmailAddress,
+	AddressLine1,
+	DateFirstPurchase
+FROM
+	DimCustomer
+WHERE YEAR(DateFirstPurchase) = 2001
+
+-- DATENAME
+SELECT
+	FirstName,
+	EmailAddress,
+	AddressLine1,
+	DateFirstPurchase
+FROM
+	DimCustomer
+WHERE DATENAME(YEAR, DateFirstPurchase) = 2001
+
+-- DATEPART
+SELECT
+	FirstName,
+	EmailAddress,
+	AddressLine1,
+	DateFirstPurchase
+FROM
+	DimCustomer
+WHERE DATEPART(YEAR, DateFirstPurchase) = 2001
+```
+
+
+### Aula 22: Resolução Exercício 5
+- A tabela DimEmployee possui uma informação de data de contratação (HireDate). A área de RH, no entanto, precisa das informações dessas datas de forma separada em dia, mês e ano, pois será feita uma automatização para criação de um relatório de RH, e facilitaria muito se essas informações estivessem separadas em uma tabela. Você deverá realizar uma consulta à tabela DimEmployee e retornar uma tabela contendo as seguintes informações: FirstName, EmailAddress, HireDate, além das colunas de Dia, Mês e Ano de contratação. Obs1: A coluna de Mês deve conter o nome do mês por extenso, e não o número do mês. Obs2: Lembre-se de nomear cada uma dessas colunas em sua consulta para garantir que o entendimento de cada informação ficará 100% claro.
+
+```sql
+SELECT * FROM DimEmployee
+
+-- FORMAT
+SELECT
+	FirstName AS 'Nome do Funcionário',
+	EmailAddress AS 'E-mail',
+	HireDate AS 'Data de contratação',
+	FORMAT(HireDate, 'dd') AS 'Dia',
+	FORMAT(HireDate, 'MMMM') AS 'Mês',
+	FORMAT(HireDate, 'yyy') AS 'Ano'
+FROM
+	DimEmployee
+
+-- DATENAME
+SELECT
+	FirstName AS 'Nome do Funcionário',
+	EmailAddress AS 'E-mail',
+	HireDate AS 'Data de contratação',
+	DATENAME(DAY, HireDate) AS 'Dia',
+	DATENAME(MONTH, HireDate) AS 'Mês',
+	DATENAME(YEAR, HireDate) AS 'Ano'
+FROM
+	DimEmployee
+```
+
+
+### Aula 23: Resolução Exercício 6
+-  Descubra qual é a loja que possui o maior tempo de atividade (em dias). Você deverá fazer essa consulta na tabela DimStore, e considerar a coluna OpenDate como referência para esse cálculo.
+
+```sql
+SELECT * FROM DimStore
+
+SELECT TOP(1)
+	StoreName AS 'Nome da Loja',
+	DATEDIFF(DAY, OpenDate, GETDATE()) AS 'Dias Abertos'
+FROM 
+	DimStore
+ORDER BY DATEDIFF(DAY, OpenDate, GETDATE()) DESC
+```
+
+
+------------
+## Módulo 12: Funções Condicionais
 
 ### Aula 2: CASE WHEN... ELSE (Explicação)
 - Determine a situação do aluno. Média >= 6: Aprovado. Caso contrário: Reprovado.
