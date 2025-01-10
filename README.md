@@ -1041,89 +1041,1113 @@ HAVING COUNT(BrandName) >= 200  -- Filtra a tabela depois de agrupada
 
 
 ### Aula 9: Resolução Exercício 1
-- 
+- a) Faça um resumo da quantidade vendida (SalesQuantity) de acordo com o canal de vendas (channelkey).
 
 ```sql
+SELECT
+	channelKey AS 'Canal',
+	SUM(SalesQuantity) AS 'Qtd. vendida'
+FROM
+	FactSales
+GROUP BY channelKey
+```
 
+- b) Faça um agrupamento mostrando a quantidade total vendida (SalesQuantity) e quantidade
+total devolvida (Return Quantity) de acordo com o ID das lojas (StoreKey).
+
+```sql
+SELECT
+	StoreKey AS 'ID loja',
+	SUM(SalesQuantity) AS 'Qtd. vendida',
+	SUM(ReturnQuantity) AS 'Qtd. devolvida'
+FROM
+	FactSales
+GROUP BY StoreKey
+```
+
+- c) Faça um resumo do valor total vendido (SalesAmount) para cada canal de venda, mas apenas
+para o ano de 2007.
+
+```sql
+SELECT
+	channelKey AS 'Canal',
+	SUM(SalesAmount) AS 'Qtd. vendida'
+FROM
+	FactSales
+WHERE DateKey BETWEEN '20070101' AND '20071231'
+GROUP BY channelKey
 ```
 
 
 ### Aula 10: Resolução Exercício 2
-- 
+- Você precisa fazer uma análise de vendas por produtos. O objetivo final é descobrir o valor total vendido (SalesAmount) por produto (ProductKey).
+- a) A tabela final deverá estar ordenada de acordo com a quantidade vendida e, além disso, mostrar apenas os produtos que tiveram um resultado final de vendas maior do que $5.000.000.
 
 ```sql
+SELECT
+	ProductKey AS 'Chave do produto',
+	SUM(SalesAmount) AS 'Qtd. vendida'
+FROM
+	FactSales
+GROUP BY ProductKey
+HAVING SUM(SalesAmount) > 5000000
+ORDER BY SUM(SalesAmount) DESC
+```
 
+- b) Faça uma adaptação no exercício anterior e mostre os Top 10 produtos com mais vendas. Desconsidere o filtro de $5.000.000 aplicado.
+
+```sql
+SELECT
+	TOP(10)
+	ProductKey AS 'Chave do produto',
+	SUM(SalesAmount) AS 'Qtd. vendida'
+FROM
+	FactSales
+GROUP BY ProductKey
+ORDER BY SUM(SalesAmount) DESC
 ```
 
 
 ### Aula 11: Resolução Exercício 3
-- 
+- a) Você deve fazer uma consulta à tabela FactOnlineSales e descobrir qual é o ID (CustomerKey) do cliente que mais realizou compras online (de acordo com a coluna
+SalesQuantity).
 
 ```sql
+SELECT TOP(10) * FROM FactOnlineSales
 
+SELECT TOP(1) 
+	CustomerKey AS 'ID cliente',
+	SUM(SalesQuantity) AS 'Qtd. comprada'
+FROM 
+	FactOnlineSales
+GROUP BY CustomerKey
+ORDER BY SUM(SalesQuantity) DESC
+```
+
+- b) Feito isso, faça um agrupamento de total vendido (SalesQuantity) por ID do produto e descubra quais foram os top 3 produtos mais comprados pelo cliente da letra a).
+
+```sql
+SELECT TOP(3)
+	ProductKey AS 'ID produto',
+	SUM(SalesQuantity) AS 'Qtd. comprada'
+FROM 
+	FactOnlineSales
+WHERE CustomerKey = 19037
+GROUP BY ProductKey
+ORDER BY SUM(SalesQuantity) DESC
 ```
 
 
 ### Aula 12: Resolução Exercício 4
-- 
+- a) Faça um agrupamento e descubra a quantidade total de produtos por marca.
 
 ```sql
+SELECT * FROM DimProduct
 
+SELECT 
+	BrandName AS 'Marca',
+	COUNT(ProductName) AS 'Qtd. produtos'
+FROM 
+	DimProduct
+GROUP BY BrandName
+ORDER BY COUNT(ProductName) DESC
+```
+
+- b) Determine a média do preço unitário (UnitPrice) para cada ClassName.
+
+```sql
+SELECT 
+	ClassName AS 'Classe',
+	AVG(UnitPrice) AS 'Media Preço Unit.'
+FROM 
+	DimProduct
+GROUP BY ClassName
+ORDER BY AVG(UnitPrice) DESC
+```
+
+- c) Faça um agrupamento de cores e descubra o peso total que cada cor de produto possui.
+
+```sql
+SELECT 
+	ColorName AS 'Cor',
+	SUM(Weight) AS 'Peso da cor'
+FROM 
+	DimProduct
+GROUP BY ColorName
+ORDER BY SUM(Weight) DESC
 ```
 
 
 ### Aula 13: Resolução Exercício 5
-- 
+- Você deverá descobrir o peso total para cada tipo de produto (StockTypeName). A tabela final deve considerar apenas a marca ‘Contoso’ e ter os seus valores classificados em ordem decrescente.
+
+```sql
+SELECT * FROM DimProduct
+
+SELECT 
+	StockTypeName AS 'Tipo de produto',
+	SUM(Weight) AS 'Peso do produto',
+	COUNT(BrandName) AS 'Marca Contoso'
+FROM 
+	DimProduct
+WHERE BrandName = 'Contoso'
+GROUP BY StockTypeName
+ORDER BY SUM(Weight) DESC
+```
+
+
+### Aula 14: Resolução Exercício 6
+- Você seria capaz de confirmar se todas as marcas dos produtos possuem à disposição todas as 16 opções de cores?
+
+```sql
+SELECT * FROM DimProduct
+
+SELECT 
+	BrandName AS 'Marca',
+	COUNT(DISTINCT ColorName) AS 'Cores distintas'
+FROM 
+	DimProduct
+GROUP BY BrandName
+ORDER BY COUNT(DISTINCT ColorName)
+```
+
+
+### Aula 15: Resolução Exercício 7
+- Faça um agrupamento para saber o total de clientes de acordo com o Sexo e também a média salarial de acordo com o Sexo. Corrija qualquer resultado “inesperado” com os seus conhecimentos em SQL.
+
+```sql
+SELECT * FROM DimCustomer
+
+SELECT 
+	Gender AS 'Gênero',
+	COUNT(FirstName) AS	'Qtd. clientes',
+	AVG(YearlyIncome) AS 'Média salarial'
+FROM
+	DimCustomer
+WHERE Gender IS NOT NULL
+GROUP BY Gender
+```
+
+
+### Aula 16: Resolução Exercício 8
+- Faça um agrupamento para descobrir a quantidade total de clientes e a média salarial de acordo com o seu nível escolar. Utilize a coluna Education da tabela DimCustomer para fazer esse agrupamento.
+
+```sql
+SELECT 
+	Education AS 'Escolaridade',
+	COUNT(FirstName) AS	'Qtd. clientes',
+	AVG(YearlyIncome) AS 'Média salarial'
+FROM
+	DimCustomer
+WHERE Education IS NOT NULL
+GROUP BY Education
+ORDER BY AVG(YearlyIncome)
+```
+
+
+### Aula 17: Resolução Exercício 9
+- Faça uma tabela resumo mostrando a quantidade total de funcionários de acordo com o Departamento (DepartmentName). Importante: Você deverá considerar apenas os funcionários ativos.
+
+```sql
+SELECT * FROM DimEmployee
+
+SELECT 
+	DepartmentName AS 'Departamento',
+	COUNT(FirstName) AS 'Qtd. funcionarios'
+FROM 
+	DimEmployee
+WHERE Status = 'Current'
+GROUP BY DepartmentName
+ORDER BY COUNT(FirstName) DESC
+
+```
+
+
+### Aula 18: Resolução Exercício 10
+- Faça uma tabela resumo mostrando o total de VacationHours para cada cargo (Title). Você deve considerar apenas as mulheres, dos departamentos de Production, Marketing, Engineering e Finance, para os funcionários contratados entre os anos de 1999 e 2000.
+
+```sql
+SELECT * FROM DimEmployee
+
+SELECT 
+	Title AS 'Cargo',
+	SUM(VacationHours) AS 'Horas totais'
+FROM 
+	DimEmployee
+WHERE Gender = 'F' AND DepartmentName IN ('Production','Marketing','Engineering','Finance') AND HireDate BETWEEN '1999-01-01' AND '2000-12-31'
+GROUP BY Title
+ORDER BY SUM(VacationHours) DESC
+```
+
+
+-------------
+## Módulo 8
+
+### Aula 2: Por que precisamos do JOIN?
+
+```sql
+SELECT TOP(1000) * FROM FactSales
+SELECT * FROM DimChannel
+
+SELECT
+	channelKey,
+	SUM(SalesQuantity) AS 'Qtd. Vendida'
+FROM
+	FactSales
+GROUP BY channelKey
+
+
+
+SELECT TOP(1000) * FROM FactSales
+SELECT * FROM DimProduct
+
+
+SELECT TOP(1000) * FROM FactOnlineSales
+SELECT * FROM DimCustomer
+
+
+SELECT * FROM FactStrategyPlan
+SELECT * FROM DimScenario
+```
+
+
+### Aula 3: Por que não criamos logo uma tabela com todas as informações pra facilitar?
+
+```sql
+SELECT TOP(1000) * FROM FactSales
+SELECT * FROM DimProduct
+```
+
+
+### Aula 7: LEFT (OUTER) JOIN
+
+```sql
+SELECT * FROM produtos
+SELECT * FROM subcategoria
+
+SELECT
+	produtos.id_produto,
+	produtos.nome_produto,
+	produtos.id_subcategoria,
+	subcategoria.nome_subcategoria
+FROM produtos
+LEFT JOIN subcategoria
+	ON produtos.id_subcategoria = subcategoria.id_subcategoria
+```
+
+
+### Aula 8: RIGHT (OUTER) JOIN
+
+```sql
+SELECT * FROM produtos
+SELECT * FROM subcategoria
+
+SELECT
+	produtos.id_produto,
+	produtos.nome_produto,
+	produtos.id_subcategoria,
+	subcategoria.nome_subcategoria
+FROM produtos
+RIGHT JOIN subcategoria
+	ON produtos.id_subcategoria = subcategoria.id_subcategoria
+
+```
+
+
+### Aula 9: INNER JOIN
+
+```sql
+SELECT * FROM produtos
+SELECT * FROM subcategoria
+
+SELECT
+	produtos.id_produto,
+	produtos.nome_produto,
+	produtos.id_subcategoria,
+	subcategoria.nome_subcategoria
+FROM produtos
+INNER JOIN subcategoria
+	ON produtos.id_subcategoria = subcategoria.id_subcategoria
+```
+
+
+### Aula 10: FULL (OUTER) JOIN
+
+```sql
+SELECT * FROM produtos
+SELECT * FROM subcategoria
+
+-- Considerando a coluna id_subcategoria da tabela produtos
+SELECT
+	produtos.id_produto,
+	produtos.nome_produto,
+	produtos.id_subcategoria,
+	subcategoria.nome_subcategoria
+FROM produtos
+FULL JOIN subcategoria
+	ON produtos.id_subcategoria = subcategoria.id_subcategoria
+
+
+-- Considerando a coluna id_subcategoria da tabela subcategoria
+SELECT
+	produtos.id_produto,
+	produtos.nome_produto,
+	subcategoria.id_subcategoria,
+	subcategoria.nome_subcategoria
+FROM produtos
+FULL JOIN subcategoria
+	ON produtos.id_subcategoria = subcategoria.id_subcategoria
+```
+
+
+### Aula 11: LEFT, RIGHT e FULL ANTI JOIN
+
+```sql
+SELECT * FROM produtos
+SELECT * FROM subcategoria
+
+
+-- LEFT (ANTI) JOIN
+
+SELECT
+	produtos.id_produto,
+	produtos.nome_produto,
+	produtos.id_subcategoria,
+	subcategoria.nome_subcategoria
+FROM produtos
+LEFT JOIN subcategoria
+	ON produtos.id_subcategoria = subcategoria.id_subcategoria
+WHERE nome_subcategoria IS NULL
+
+
+-- RIGHT (ANTI) JOIN
+
+SELECT
+	produtos.id_produto,
+	produtos.nome_produto,
+	produtos.id_subcategoria,
+	subcategoria.nome_subcategoria
+FROM produtos
+RIGHT JOIN subcategoria
+	ON produtos.id_subcategoria = subcategoria.id_subcategoria
+WHERE id_produto IS NULL
+
+
+-- FULL (ANTI) JOIN
+
+SELECT
+	produtos.id_produto,
+	produtos.nome_produto,
+	produtos.id_subcategoria,
+	subcategoria.nome_subcategoria
+FROM produtos
+FULL JOIN subcategoria
+	ON produtos.id_subcategoria = subcategoria.id_subcategoria
+WHERE id_produto IS NULL OR nome_subcategoria IS NULL
+```
+
+
+### Aula 12: INNER, LEFT e RIGHT JOIN - Exemplos
+
+```sql
+SELECT ProductKey, ProductName, ProductSubcategoryKey FROM DimProduct
+SELECT ProductSubcategoryKey, ProductSubcategoryName FROM DimProductSubcategory
+
+SELECT
+	ProductKey,
+	ProductName,
+	DimProduct.ProductSubcategoryKey,
+	ProductSubcategoryName
+FROM DimProduct
+INNER JOIN DimProductSubcategory
+	ON DimProduct.ProductSubcategoryKey = DimProductSubcategory.ProductSubcategoryKey
+
+
+SELECT
+	ProductKey,
+	ProductName,
+	DimProduct.ProductSubcategoryKey,
+	ProductSubcategoryName
+FROM DimProduct
+LEFT JOIN DimProductSubcategory
+	ON DimProduct.ProductSubcategoryKey = DimProductSubcategory.ProductSubcategoryKey
+
+
+SELECT
+	ProductKey,
+	ProductName,
+	DimProduct.ProductSubcategoryKey,
+	ProductSubcategoryName
+FROM DimProduct
+RIGHT JOIN DimProductSubcategory
+	ON DimProduct.ProductSubcategoryKey = DimProductSubcategory.ProductSubcategoryKey
+
+```
+
+
+### Aula 13: Como definir quem é a LEFT Table e a RIGHT Table
+
+```sql
+-- 1. LEFT Join para complementar informações da tabela produtos (LEFT) de acordo com a tabela de categoria (RIGHT)
+SELECT
+	id_produto,
+	nome_produto,
+	produtos.id_subcategoria,
+	nome_subcategoria
+FROM produtos
+LEFT JOIN subcategoria
+	ON produtos.id_subcategoria = subcategoria.id_subcategoria
+
+
+-- 2. Obtendo o LEFT Join do caso 1 usando um RIGHT Join e invertendo as tabelas de lado
+SELECT
+	id_produto,
+	nome_produto,
+	produtos.id_subcategoria,
+	nome_subcategoria
+FROM subcategoria
+RIGHT JOIN produtos
+	ON subcategoria.id_subcategoria = produtos.id_subcategoria
+
+```
+
+
+### Aula 15: CROSS JOIN
+
+```sql
+-- CROSS JOIN
+
+-- PARA ACOMPANHAR ESTA AULA, PRECISAREMOS CRIAR A TABELA MARCAS
+
+-- PRIMEIRO, GARANTA QUE NÃO EXISTE NENHUMA TABELA CHAMADA MARCAS NO BANCO DE DADOS, EXECUTANDO O COMANDO DROP TABLE ABAIXO:
+DROP TABLE IF EXISTS marcas
+
+-- AGORA CRIE A TABELA MARCAS:
+CREATE TABLE marcas(
+id_marca int,
+marca varchar(30))
+
+
+-- INSIRA AS LINHAS DA TABELA MARCAS:
+INSERT INTO marcas(id_marca, marca)
+VALUES
+	(1, 'Apple'),
+	(2, 'Samsung'),
+	(3, 'Motorola')
+
+
+SELECT * FROM marcas
+SELECT * FROM subcategoria
+
+
+SELECT
+	marca,
+	nome_subcategoria
+FROM marcas CROSS JOIN subcategoria
+```
+
+
+### Aula 16: Múltiplos Joins
+
+```sql
+SELECT ProductKey, ProductName, ProductSubcategoryKey FROM DimProduct
+SELECT ProductSubcategoryKey, ProductSubcategoryName, ProductCategoryKey FROM DimProductSubcategory
+SELECT ProductCategoryKey, ProductCategoryName FROM DimProductCategory
+
+SELECT
+	ProductKey,
+	ProductName,
+	DimProduct.ProductSubcategoryKey,
+	ProductCategoryName
+FROM DimProduct
+INNER JOIN DimProductSubcategory
+	ON DimProduct.ProductSubcategoryKey = DimProductSubcategory.ProductSubcategoryKey
+		INNER JOIN DimProductCategory
+			ON DimProductSubcategory.ProductCategoryKey = DimProductCategory.ProductCategoryKey
+
+```
+
+
+### Aula 17: UNION e UNION ALL
+
+```sql
+-- UNION
+
+SELECT
+	*
+FROM
+	DimCustomer
+WHERE Gender = 'F'
+UNION
+SELECT
+	*
+FROM
+	DimCustomer
+WHERE Gender = 'M'
+
+
+-- UNION ALL
+
+SELECT
+	FirstName,
+	BirthDate
+FROM
+	DimCustomer
+WHERE Gender = 'F'
+UNION ALL
+SELECT
+	FirstName,
+	BirthDate
+FROM
+	DimCustomer
+WHERE Gender = 'M'
+```
+
+
+### Aula 19: Resolução Exercício 1
+- Utilize o INNER JOIN para trazer os nomes das subcategorias dos produtos, da tabela DimProductSubcategory para a tabela DimProduct.
+
+```sql
+SELECT TOP (10) * FROM DimProduct
+SELECT TOP (10) * FROM DimProductSubcategory
+
+SELECT
+	ProductKey,
+	ProductName,
+	DimProduct.ProductSubcategoryKey,
+	ProductSubcategoryName
+FROM 
+	DimProduct
+INNER JOIN DimProductSubcategory
+	ON DimProduct.ProductSubcategoryKey = DimProductSubcategory.ProductSubcategoryKey
+-- INNER: 2517 linhas
+-- LEFT: 2517 linhas
+-- Todos os produtos estão classificados com uma subcategoria
+```
+
+
+### Aula 20: Resolução Exercício 2
+- Identifique uma coluna em comum entre as tabelas DimProductSubcategory e DimProductCategory. Utilize essa coluna para complementar informações na tabela DimProductSubcategory a partir da DimProductCategory. Utilize o LEFT JOIN.
+
+```sql
+SELECT TOP (10) * FROM DimProductSubcategory
+SELECT TOP (10) * FROM DimProductCategory
+SELECT COUNT(*) FROM DimProductSubcategory
+SELECT COUNT(*) FROM DimProductCategory
+
+SELECT
+	ProductSubcategoryKey,
+	ProductSubcategoryName,
+	DimProductSubcategory.ProductCategoryKey,
+	ProductCategoryName
+FROM 
+	DimProductSubcategory
+LEFT JOIN DimProductCategory
+	ON DimProductSubcategory.ProductCategoryKey = DimProductCategory.ProductCategoryKey
+-- INNER: 44 linhas.
+-- LEFT: 44 linhas.
+-- Todas as subcategorias tem uma categoria.
+```
+
+
+### Aula 21: Resolução Exercício 3
+- Para cada loja da tabela DimStore, descubra qual o Continente e o Nome do País associados (de acordo com DimGeography). Seu SELECT final deve conter apenas as seguintes colunas: StoreKey, StoreName, EmployeeCount, ContinentName e RegionCountryName. Utilize o LEFT JOIN neste exercício.
+
+```sql
+SELECT TOP (10) * FROM DimStore
+SELECT TOP (10) * FROM DimGeography
+SELECT COUNT(*) FROM DimStore
+SELECT COUNT(*) FROM DimGeography
+
+SELECT
+	StoreKey,
+	StoreName,
+	EmployeeCount,
+	ContinentName,
+	RegionCountryName
+FROM 
+	DimStore
+LEFT JOIN DimGeography
+	ON DimStore.GeographyKey = DimGeography.GeographyKey
+-- LEFT: 306 linhas.
+-- INNER: 306 linhas.
+```
+
+
+### Aula 22: Resolução Exercício 4
+- Complementa a tabela DimProduct com a informação de ProductCategoryDescription. Utilize o LEFT JOIN e retorne em seu SELECT apenas as 5 colunas que considerar mais relevantes.
+
+```sql
+SELECT * FROM DimProduct
+SELECT * FROM DimProductCategory
+SELECT * FROM DimProductSubcategory
+
+SELECT
+	ProductKey,
+	ProductName,
+	DimProduct.ProductSubcategoryKey,
+	ProductSubcategoryName,
+	ProductCategoryDescription
+FROM 
+	DimProduct
+LEFT JOIN DimProductSubcategory
+	ON DimProduct.ProductSubcategoryKey = DimProductSubcategory.ProductSubcategoryKey
+		LEFT JOIN DimProductCategory
+			on DimProductCategory.ProductCategoryKey = DimProductSubcategory.ProductCategoryKey
+```
+
+
+### Aula 23: Resolução Exercício 5
+- A tabela FactStrategyPlan resume o planejamento estratégico da empresa. Cada linha representa um montante destinado a uma determinada AccountKey.
+- a) Faça um SELECT das 100 primeiras linhas de FactStrategyPlan para reconhecer a tabela.
+
+```sql
+SELECT TOP(5)* FROM FactStrategyPlan
+SELECT TOP(5)* FROM DimAccount
+```
+
+- b) Faça um INNER JOIN para criar uma tabela contendo o AccountName para cada AccountKey da tabela FactStrategyPlan. O seu SELECT final deve conter as colunas:
+	• StrategyPlanKey
+	• DateKey
+	• AccountName
+	• Amount
+
+```sql
+SELECT TOP(10)
+	StrategyPlanKey,
+	Datekey,
+	AccountName,
+	Amount
+FROM
+	FactStrategyPlan
+INNER JOIN DimAccount
+	ON FactStrategyPlan.AccountKey = DimAccount.AccountKey
+```
+
+
+### Aula 24: Resolução Exercício 6
+- Vamos continuar analisando a tabela FactStrategyPlan. Além da coluna AccountKey que identifica o tipo de conta, há também uma outra coluna chamada ScenarioKey. Essa coluna possui a numeração que identifica o tipo de cenário: Real, Orçado e Previsão. Faça um INNER JOIN para criar uma tabela contendo o ScenarioName para cada ScenarioKey da tabela FactStrategyPlan. O seu SELECT final deve conter as colunas:
+	• StrategyPlanKey
+	• DateKey
+	• ScenarioName
+	• Amount
+
+```sql
+SELECT TOP(5)* FROM FactStrategyPlan
+SELECT TOP(5)* FROM DimScenario
+
+SELECT TOP(10)
+	StrategyPlanKey,
+	Datekey,
+	ScenarioName,
+	Amount
+FROM
+	FactStrategyPlan
+INNER JOIN DimScenario
+	ON FactStrategyPlan.ScenarioKey = DimScenario.ScenarioKey
+```
+
+
+### Aula 25: Resolução Exercício 7
+- Algumas subcategorias não possuem nenhum exemplar de produto. Identifique que subcategorias são essas.
+
+```sql
+SELECT TOP(5)* FROM DimProductSubcategory
+SELECT TOP(5)* FROM DimProduct
+
+SELECT
+	ProductSubcategoryName,
+	ProductName
+FROM 
+	DimProductSubcategory
+LEFT JOIN DimProduct
+	ON DimProductSubcategory.ProductSubcategoryKey = DimProduct.ProductSubcategoryKey
+WHERE ProductName IS NULL
+```
+
+
+### Aula 26: Resolução Exercício 8
+- A tabela abaixo mostra a combinação entre Marca e Canal de Venda, para as marcas Contoso, Fabrikam e Litware. Crie um código SQL para chegar no mesmo resultado.
+![image](https://github.com/user-attachments/assets/0ed0a4cc-d518-4ca8-82f9-ac18ec105033)
+
+```sql
+SELECT TOP(5)* FROM FactSales
+SELECT * FROM DimChannel
+SELECT TOP(5)* FROM DimProduct
+
+SELECT
+	DISTINCT BrandName,
+	ChannelName
+FROM
+	DimProduct CROSS JOIN DimChannel
+WHERE BrandName IN ('Contoso', 'Fabrikam', 'Litware')
+```
+
+
+### Aula 27: Resolução Exercício 9
+- Neste exercício, você deverá relacionar as tabelas FactOnlineSales com DimPromotion. Identifique a coluna que as duas tabelas têm em comum e utilize-a para criar esse
+relacionamento. A sua consulta deve considerar apenas as linhas de vendas referentes a produtos com desconto (PromotionName <> ‘No Discount’). Além disso, você deverá ordenar essa tabela de acordo com a coluna DateKey, em ordem crescente. Retorne uma tabela contendo as seguintes colunas:
+	• OnlineSalesKey
+	• DateKey
+	• PromotionName
+	• SalesAmount
+
+```sql
+SELECT TOP(5)* FROM FactOnlineSales
+SELECT TOP(5)* FROM DimPromotion
+
+SELECT TOP(10)
+	OnlineSalesKey,
+	DateKey,
+	PromotionName,
+	SalesAmount
+FROM
+	FactOnlineSales
+INNER JOIN DimPromotion
+	ON FactOnlineSales.PromotionKey = DimPromotion.PromotionKey
+WHERE PromotionName <> 'No Discount'
+ORDER BY DateKey
+```
+
+
+### Aula 28: Resolução Exercício 10
+- A tabela abaixo é resultado de um Join entre a tabela FactSales e as tabelas: DimChannel, DimStore e DimProduct. Recrie esta consulta e classifique em ordem decrescente de acordo com SalesAmount
+![image](https://github.com/user-attachments/assets/6105fd93-2a6d-477a-84f7-27baf17c6f7a)
+
+
+```sql
+SELECT TOP(5)* FROM FactSales -- saleskey, storekey, channelkey, productkey
+SELECT TOP(5)* FROM DimChannel -- channelname, channelkey
+SELECT TOP(5)* FROM DimStore -- storename, storekey
+SELECT TOP(5)* FROM DimProduct -- productname, product key
+
+SELECT TOP(5)
+	SalesKey,
+	ChannelName,
+	StoreName,
+	ProductName,
+	SalesAmount
+FROM FactSales
+INNER JOIN DimChannel
+	ON FactSales.channelKey = DimChannel.ChannelKey
+INNER JOIN DimStore
+	ON FactSales.StoreKey = DimStore.StoreKey
+INNER JOIN DimProduct
+	ON FactSales.ProductKey = DimProduct.ProductKey
+ORDER BY SalesAmount DESC
+```
+
+
+----------------
+## Módulo 9: Group By + Joins - Aplicações
+
+### 1. Group By mais Inner Join
+- a) Faça um resumo da quantidade vendida (Sales Quantity) de acordo com o nome do canal de vendas (ChannelName). Você deve ordenar a tabela final de acordo com SalesQuantity, em ordem decrescente.
+
+```sql
+SELECT TOP(100) * FROM FactSales
+SELECT TOP(100) * FROM DimChannel
+
+SELECT
+	ChannelName AS 'Nome do canal',
+	SUM(SalesQuantity) AS 'Total vendido'
+FROM
+	DimChannel
+INNER JOIN FactSales
+	ON DimChannel.ChannelKey = FactSales.channelKey
+GROUP BY ChannelName
+ORDER BY SUM(SalesQuantity) DESC
+```
+
+- b) Faça um agrupamento mostrando a quantidade total vendida (Sales Quantity) e quantidade total devolvida (Return Quantity) de acordo com o nome das lojas
+(StoreName).
+
+```sql
+SELECT TOP(100) * FROM FactSales
+SELECT TOP(100) * FROM DimStore
+
+SELECT
+	StoreName AS 'Nome do canal',
+	SUM(SalesQuantity) AS 'Total vendido',
+	SUM(ReturnQuantity) AS 'Total devolvido'
+FROM
+	DimStore
+INNER JOIN FactSales
+	ON DimStore.StoreKey = FactSales.StoreKey
+GROUP BY StoreName
+ORDER BY SUM(ReturnQuantity) DESC
+```
+
+- c) Faça um resumo do valor total vendido (Sales Amount) para cada mês (CalendarMonthLabel) e ano (CalendarYear).
+
+```sql
+SELECT TOP(100) * FROM FactSales
+SELECT TOP(100) * FROM DimDate
+
+-- Total vendido para cada mês
+SELECT
+	CalendarMonthLabel AS 'Mês',
+	CalendarYear AS 'Ano',
+	SUM(SalesAmount) AS 'Total vendido'
+FROM
+	DimDate
+LEFT JOIN FactSales
+	ON DimDate.Datekey = FactSales.DateKey
+GROUP BY CalendarMonthLabel, CalendarYear, CalendarMonth
+ORDER BY CalendarMonth
+```
+
+
+## Group By mais Inner Join - Fixação 1
+-  Você precisa fazer uma análise de vendas por produtos. O objetivo final é descobrir o valor total vendido (SalesQuantity) por produto.
+- a) Descubra qual é a cor de produto que mais é vendida (de acordo com SalesQuantity).
+
+```sql
+SELECT TOP(100) * FROM FactSales
+SELECT TOP(100) * FROM DimProduct
+
+SELECT
+	ColorName AS 'Cor',
+	SUM(SalesAmount) AS 'Total vendido'
+FROM
+	FactSales
+INNER JOIN DimProduct
+	ON FactSales.ProductKey = DimProduct.ProductKey
+GROUP BY ColorName
+ORDER BY SUM(SalesQuantity) DESC
+```
+
+- b) Quantas cores tiveram uma quantidade vendida acima de 3.000.000.
+
+```sql
+SELECT DISTINCT
+	ColorName AS 'Cor',
+	SUM(SalesQuantity) AS 'Total vendido'
+FROM
+	FactSales
+INNER JOIN DimProduct
+	ON FactSales.ProductKey = DimProduct.ProductKey
+GROUP BY ColorName
+HAVING SUM(SalesQuantity) > 3000000
+ORDER BY SUM(SalesQuantity) DESC
+```
+
+
+### Group By mais Inner Join - Fixação 2
+- Crie um agrupamento de quantidade vendida (SalesQuantity) por categoria do produto (ProductCategoryName). Obs: Você precisará fazer mais de 1 INNER JOIN, dado que a relação entre FactSales e DimProductCategory não é direta.
+
+```sql
+SELECT TOP(100) * FROM FactSales
+SELECT TOP(100) * FROM DimProductCategory
+SELECT TOP(100) * FROM DimProductSubcategory
+SELECT TOP(100) * FROM DimProduct
+
+SELECT
+	ProductCategoryName AS 'Categoria do produto',
+	SUM(SalesQuantity) AS 'Total vendido'
+FROM
+	FactSales
+INNER JOIN DimProduct
+	ON FactSales.ProductKey = DimProduct.ProductKey
+		INNER JOIN DimProductSubcategory
+			ON DimProduct.ProductSubcategoryKey = DimProductSubcategory.ProductSubcategoryKey
+				INNER JOIN DimProductCategory
+					ON DimProductCategory.ProductCategoryKey = DimProductSubcategory.ProductCategoryKey
+GROUP BY ProductCategoryName
+```
+
+
+### Group By mais Inner Join - Fixação 3
+-  a) Você deve fazer uma consulta à tabela FactOnlineSales e descobrir qual é o nome completo do cliente que mais realizou compras online (de acordo com a coluna SalesQuantity).
+
+```sql
+SELECT TOP(100) * FROM FactOnlineSales
+SELECT TOP(100) * FROM DimCustomer
+SELECT TOP(100) * FROM DimProduct
+
+SELECT
+	DimCustomer.CustomerKey,
+	FirstName,
+	LastName,
+	SUM(SalesQuantity) AS 'Qtd. vendida'
+FROM
+	FactOnlineSales
+INNER JOIN DimCustomer
+	ON FactOnlineSales.CustomerKey = DimCustomer.CustomerKey
+WHERE CustomerType = 'Person'
+GROUP BY FirstName, LastName, DimCustomer.CustomerKey
+ORDER BY SUM(SalesQuantity) DESC
+```
+
+- b) Feito isso, faça um agrupamento de produtos e descubra quais foram os top 10 produtos mais comprados pelo cliente da letra a, considerando o nome do produto.
+
+```sql
+SELECT TOP(10)
+	FirstName AS 'Nome cliente', 
+	ProductName AS 'Nome do produto',
+	SUM(SalesQuantity) AS 'Qtd. comprada'
+FROM
+	FactOnlineSales
+INNER JOIN DimCustomer
+	ON FactOnlineSales.CustomerKey = DimCustomer.CustomerKey
+		INNER JOIN DimProduct
+			ON DimProduct.ProductKey = FactOnlineSales.ProductKey
+WHERE DimCustomer.CustomerKey = '7665'
+GROUP BY FirstName, ProductName
+ORDER BY SUM(SalesQuantity) DESC
+```
+
+
+### Group By mais Inner Join - Fixação 4
+- . Faça um resumo mostrando o total de produtos comprados (Sales Quantity) de acordo com o sexo dos clientes.
+
+```sql
+SELECT TOP(100) * FROM FactOnlineSales
+SELECT TOP(100) * FROM DimCustomer
+SELECT TOP(100) * FROM DimProduct
+
+SELECT
+	Gender AS 'Gênero',
+	SUM(SalesQuantity) AS 'Qtd. comprada'
+FROM
+	FactOnlineSales
+INNER JOIN DimCustomer
+	ON FactOnlineSales.CustomerKey = DimCustomer.CustomerKey
+WHERE CustomerType = 'Person'
+GROUP BY Gender
+```
+
+
+### Group By mais Inner Join - Fixação 5
+- Faça uma tabela resumo mostrando a taxa de câmbio média de acordo com cada CurrencyDescription. A tabela final deve conter apenas taxas entre 10 e 100.
+
+```sql
+SELECT TOP(10) * FROM FactExchangeRate
+SELECT TOP(10) * FROM DimCurrency
+
+SELECT
+	CurrencyDescription,
+	AVG(AverageRate) AS 'Taxa de câmbio média'
+FROM
+	FactExchangeRate
+INNER JOIN DimCurrency
+	ON FactExchangeRate.CurrencyKey = DimCurrency.CurrencyKey
+GROUP BY CurrencyDescription
+HAVING AVG(AverageRate) BETWEEN 10 AND 100
+```
+
+
+### Group By mais Inner Join - Fixação 6
+- Calcule a SOMA TOTAL de AMOUNT referente à tabela FactStrategyPlan destinado aos cenários: Actual e Budget. Dica: A tabela DimScenario será importante para esse exercício.
+
+```sql
+SELECT TOP(10) * FROM FactStrategyPlan
+SELECT TOP(10) * FROM DimScenario
+
+SELECT
+	ScenarioName AS 'Cenário',
+	SUM(Amount) AS 'Valor total'
+FROM
+	FactStrategyPlan
+INNER JOIN DimScenario
+	ON FactStrategyPlan.ScenarioKey = DimScenario.ScenarioKey
+WHERE ScenarioName IN ('Actual', 'Budget')
+GROUP BY ScenarioName
+```
+
+
+### Group By mais Inner Join - Fixação 7
+- Calcule a SOMA TOTAL de AMOUNT referente à tabela FactStrategyPlan destinado aos cenários: Actual e Budget. Dica: A tabela DimScenario será importante para esse exercício.
+
+```sql
+SELECT TOP(10) * FROM FactStrategyPlan
+SELECT TOP(10) * FROM DimScenario
+
+SELECT
+	ScenarioName AS 'Cenário',
+	SUM(Amount) AS 'Valor total'
+FROM
+	FactStrategyPlan
+INNER JOIN DimScenario
+	ON FactStrategyPlan.ScenarioKey = DimScenario.ScenarioKey
+WHERE ScenarioName IN ('Actual', 'Budget')
+GROUP BY ScenarioName
+```
+
+
+### Group By mais Inner Join - Fixação 8
+- Faça uma tabela resumo mostrando o resultado do planejamento estratégico por ano.
+
+```sql
+SELECT TOP(10) * FROM FactStrategyPlan
+SELECT TOP(10) * FROM DimDate
+
+SELECT
+	CalendarYear AS 'Ano',
+	SUM(Amount) AS 'Valor total'
+FROM
+	FactStrategyPlan
+INNER JOIN DimDate
+	ON FactStrategyPlan.Datekey = DimDate.Datekey
+GROUP BY CalendarYear
+```
+
+
+### Group By mais Inner Join - Fixação 9
+- Faça um agrupamento de quantidade de produtos por ProductSubcategoryName. Leve em consideração em sua análise apenas a marca Contoso e a cor Silver.
+
+```sql
+SELECT TOP(10) * FROM DimProduct
+SELECT TOP(10) * FROM DimProductSubcategory
+
+SELECT
+	ProductSubcategoryName,
+	COUNT(ProductSubcategoryName) AS 'Qtd. produtos'
+FROM
+	DimProductSubcategory
+INNER JOIN DimProduct
+	ON DimProductSubcategory.ProductSubcategoryKey = DimProduct.ProductSubcategoryKey
+WHERE BrandName = 'Contoso' AND ColorName = 'Silver'
+GROUP BY ProductSubcategoryName
+ORDER BY COUNT(ProductSubcategoryName) DESC
+```
+
+
+### Group By mais Inner Join - Fixação 9
+- Faça um agrupamento duplo de quantidade de produtos por BrandName e ProductSubcategoryName. A tabela final deverá ser ordenada de acordo com a coluna BrandName.
+
+```sql
+SELECT TOP(10) * FROM DimProduct
+SELECT TOP(10) * FROM DimProductSubcategory
+
+SELECT
+	BrandName AS 'Marca',
+	ProductSubcategoryName,
+	COUNT(ProductSubcategoryName) AS 'Qtd. produtos'
+FROM
+	DimProductSubcategory
+INNER JOIN DimProduct
+	ON DimProductSubcategory.ProductSubcategoryKey = DimProduct.ProductSubcategoryKey
+GROUP BY BrandName, ProductSubcategoryName
+ORDER BY BrandName
+```
+
+
+------------
+## Módulo 10: Variáveis
+
+### 
+
+```sql
+
+```
 
 ```sql
 
 ```
 
 
-### Aula 14: Resolução Exercício 1
-- 
 
-```sql
-
-```
-
-
-### Aula 9: Resolução Exercício 1
-- 
-
-```sql
-
-```
-
-
-### Aula 9: Resolução Exercício 1
-- 
-
-```sql
-
-```
-
-
-### Aula 9: Resolução Exercício 1
-- 
-
-```sql
-
-```
-
-```sql
-
-```
-
-
-```sql
-
-```
-
-
-```sql
-
-```
 
 
 
