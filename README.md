@@ -3576,7 +3576,147 @@ FROM
 ```
 
 
+------------
+## Módulo 13: SQL Views
 
+### Aula 2: CREATE VIEW - Criando a primeira View
+
+```sql
+-- 1. Exemplos
+-- a) Crie uma view contendo as seguintes informações da tabela DimCustomer: FirstName, EmailAddress e BirthDate. Chame essa view de vwClientes
+
+CREATE VIEW vwCliente AS
+SELECT
+	FirstName AS 'Nome',
+	EmailAdress AS 'E-mail',
+	BirthDate AS 'Data de Nascimento'
+FROM
+	DimCustomer
+
+-- b) Crie uma View contendo as seguintes informações da tabela DimProduct: ProductKey, ProductName, BrandName e UnitPrice. Chame essa view de vwProdutos
+
+CREATE VIEW vwProdutos AS
+SELECT
+	ProductKey AS 'ID Produto',
+	ProductName As 'Nome do Produto',
+	ProductSubcategoryKey AS 'ID Subcategoria',
+	BrandName As 'Marca'
+	UnitPrice As 'Preço Unitário'
+FROM
+	DimProduct
+```
+
+
+### Aula 3: Como assim 'the only statement in the batch'
+- Utilizando o GO para delimitar as views.
+
+```sql
+-- VIEW 1
+CREATE VIEW vwCliente AS
+SELECT
+	FirstName AS 'Nome',
+	EmailAdress AS 'E-mail',
+	BirthDate AS 'Data de Nascimento'
+FROM
+	DimCustomer
+GO
+
+-- VIEW 2
+
+GO
+CREATE VIEW vwProdutos AS
+SELECT
+	ProductKey AS 'ID Produto',
+	ProductName As 'Nome do Produto',
+	ProductSubcategoryKey AS 'ID Subcategoria',
+	BrandName As 'Marca'
+	UnitPrice As 'Preço Unitário'
+FROM
+	DimProduct
+GO
+```
+
+
+### Aula 4: USE Database - Como especificar o banco de dados com USE
+
+```sql
+USE Teste
+SELECT * FROM Produtos
+
+USE ContosoRetailDW
+SELECT * FROM DimProduct
+```
+
+
+### Aula 5: ALTER VIEW
+- Altere a view abaixo para incluir apenas os clientes do sexto Feminino
+
+```sql
+GO
+ALTER VIEW vwClientes AS
+SELECT
+	FirstName As 'Nome',
+	EmailAdress AS 'E-mail',
+	BirthDate AS 'Data de Nascimento',
+	Gender AS 'Sexo'
+FROM
+	DimCustomer
+WHERE Gender = 'F'
+GO
+```
+
+
+### Aula 6 de 13: DROP VIEW
+- Exemplo: Exclua as views vwClientes e vwProdutos
+
+```sql
+DROP VIEW vwClientes
+DROP VIEW vwProdutos
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
 
 
 
