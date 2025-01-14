@@ -3674,9 +3674,212 @@ DROP VIEW vwClientes
 DROP VIEW vwProdutos
 ```
 
-```sql
 
+### Aula 8: Resolução Exercício 1
+- a) A partir da tabela DimProduct, crie uma View contendo as informações de ProductName, ColorName, UnitPrice e UnitCost, da tabela DimProduct. Chame essa View de vwProdutos.
+
+```sql
+CREATE VIEW vwProdutos AS
+SELECT
+	ProductName AS 'Nome',
+	ColorName As 'Cor',
+	UnitPrice AS 'Preço',
+	UnitCost As 'Custo'
+FROM
+	DimProduct
+GO
 ```
+
+- b) A partir da tabela DimEmployee, crie uma View mostrando FirstName, BirthDate, DepartmentName. Chame essa View de vwFuncionarios.
+
+```sql
+GO
+CREATE VIEW vwFuncionarios AS
+SELECT
+	FirstName AS 'Nome',
+	BirthDate AS 'Data de nascimento',
+	DepartmentName As 'Departamento'
+FROM
+	DimEmployee
+GO
+```
+
+- c) A partir da tabela DimStore, crie uma View mostrando StoreKey, StoreName e OpenDate. Chame essa View de vwLojas.
+
+```sql
+GO
+CREATE VIEW vwLojas AS
+SELECT
+	StoreKey AS 'ID Loja',
+	StoreName AS 'Nome da loja',
+	OpenDate AS 'Data de abertura'
+FROM
+	DimStore
+GO
+```
+
+
+
+### Aula 9: Resolução Exercício 2
+- Crie uma View contendo as informações de Nome Completo (FirstName + LastName), Gênero (por extenso), E-mail e Renda Anual (formatada com R$). Utilize a tabela DimCustomer. Chame essa View de vwClientes.
+
+```sql
+GO
+CREATE VIEW vwClientes AS
+SELECT
+	CONCAT(FirstName, ' ', LastName) AS 'Nome Completo',
+	REPLACE(REPLACE(Gender, 'M', 'Masculino'), 'F', 'Feminino') AS 'Gênero',
+	EmailAdress AS 'E-mail',
+	FORMAT(YearlyIncome, 'c') AS 'Renda Anual'
+FROM
+	DimCustomer
+GO
+```
+
+
+### Aula 10: Resolução Exercício 3
+- a) A partir da tabela DimStore, crie uma View que considera apenas as lojas ativas. Faça um SELECT de todas as colunas. Chame essa View de vwLojasAtivas.
+
+```sql
+GO
+CREATE VIEW vwLojasAtivas AS
+SELECT * FROM DimStore
+WHERE Status = 'On'
+GO
+```
+
+- b) A partir da tabela DimEmployee, crie uma View de uma tabela que considera apenas os funcionários da área de Marketing. Faça um SELECT das colunas: FirstName, EmailAddress e DepartmentName. Chame essa de vwFuncionariosMkt.
+
+```sql
+GO
+CREATE VIEW vwFuncionariosMkt AS
+SELECT
+	FirstName,
+	EmailAdress,
+	DepartmentName
+FROM
+	DimEmployee
+WHERE DepartmentName = 'Marketing'
+GO
+```
+
+- c) Crie uma View de uma tabela que considera apenas os produtos das marcas Contoso e Litware. Além disso, a sua View deve considerar apenas os produtos de cor Silver. Faça um SELECT de todas as colunas da tabela DimProduct. Chame essa View de vwContosoLitwareSilver.
+
+```sql
+GO
+CREATE VIEW vwContosoLitwareSilver AS
+SELECT * FROM DimProduct
+WHERE BrandName IN ('Contoso', 'Litware') AND ColorName = 'Silver'
+GO
+```
+
+
+### Aula 11: Resolução Exercício 4
+- Crie uma View que seja o resultado de um agrupamento da tabela FactSales. Este agrupamento deve considerar o SalesQuantity (Quantidade Total Vendida) por Nome do Produto. Chame esta View de vwTotalVendidoProdutos. OBS: Para isso, você terá que utilizar um JOIN para relacionar as tabelas FactSales e DimProduct.
+
+```sql
+GO
+CREATE VIEW vwTotalVendidoProdutos AS
+SELECT
+	ProductName AS 'Nome do produto',
+	SUM(SalesQuantity) AS 'Qtd. Vendida'
+FROM
+	FactSales
+INNER JOIN DimProduct
+	ON FactsSales.ProductKey = DimProduct.ProductKey
+GROUP BY ProductName
+GO
+```
+
+
+### Aula 12: Resolução Exercício 5
+- Faça as seguintes alterações nas tabelas da questão 1.
+- a) Na View criada na letra a da questão 1, adicione a coluna de BrandName.
+
+```sql
+GO
+ALTER VIEW vwProdutos AS
+SELECT
+	ProductName AS 'Nome',
+	ColorName As 'Cor',
+	UnitPrice AS 'Preço',
+	UnitCost AS 'Custo',
+	BrandName AS 'Marca'
+FROM
+	DimProduct
+GO
+```
+
+- b) Na View criada na letra b da questão 1, faça um filtro e considere apenas os funcionários do sexo feminino.
+
+```sql
+GO
+ALTER VIEW vwFuncionarios AS
+SELECT
+	FirstName AS 'Nome',
+	BirthDate AS 'Data de nascimento',
+	DepartmentName As 'Departamento'
+FROM
+	DimEmployee
+WHERE Gender = 'F'
+GO
+```
+
+- c) Na View criada na letra c da questão 1, faça uma alteração e filtre apenas as lojas ativas.
+
+```sql
+GO
+ALTER VIEW vwLojas AS
+SELECT
+	StoreKey AS 'ID Loja',
+	StoreName AS 'Nome da loja',
+	OpenDate AS 'Data de abertura'
+FROM
+	DimStore
+WHERE Status = 'On'
+GO
+```
+
+
+### Aula 16: Resolução Exercício 6
+- a) Crie uma View que seja o resultado de um agrupamento da tabela DimProduct. O resultado esperado da consulta deverá ser o total de produtos por marca. Chame essa View de vw_6a.
+
+```sql
+GO
+CREATE VIEW vw_6a
+SELECT
+	BrandName AS 'Marca',
+	COUNT(*) AS 'Qtd. Produtos'
+FROM
+	DimProduct
+GROUP BY BrandName
+GO
+```
+
+- b) Altere a View criada no exercício anterior, adicionando o peso total por marca. Atenção: sua View final deverá ter então 3 colunas: Nome da Marca, Total de Produtos e Peso Total.
+
+```sql
+GO
+ALTER VIEW vw_6a
+SELECT
+	BrandName AS 'Marca',
+	COUNT(*) AS 'Qtd. Produtos',
+	SUM(Weight) AS 'Peso Total'
+FROM
+	DimProduct
+GROUP BY BrandName
+GO
+```
+
+- c) Exclua a View vw_6a.
+
+```sql
+DROP VIEW vw_6a
+```
+
+
+--------------
+## Módulo 14: CRUD
 
 ```sql
 
