@@ -3881,13 +3881,188 @@ DROP VIEW vw_6a
 --------------
 ## Módulo 14: CRUD
 
+### Aula 3: CREATE e DROP DATABASE
+
+```sql
+CREATE DATABASE Teste
+DROP DATABASE Teste
+CREATE BDImpressionador
+```
+
+### Aula 5: Aula 5 de 21: Cuidados antes de criar uma Tabela em um Banco de Dados
+
+```sql
+USE BDImpressionador
+```
+
+### Aula 6: CREATE TABLE - Criando a primeira tabela
+
+```sql
+- Crie uma tabela chamada 'Produtos'
+-- Essa abela deve conter 4 colunas: id_produt, nome_produto, data_validade e preco_produto
+-- Certifique-se de que o tipo das colunas está correto.
+
+USE BDImpressionador
+
+CREATE TABLE Produtos(
+	id_produto INT,
+	nome_produto VARCHAR(200),
+	data_validade DATETIME,
+	preco_produto FLOAT
+)
+```
+
+
+### Aula 7: INSERT SELECT - Adicionando dados de outra tabela
+
+```sql
+-- Adicionando valores de outra tabela
+
+INSERT INTO Produtos(id_produto, nome_produto, data_validade, preco_produto)
+SELECT
+	ProductKey,
+	ProductName,
+	AvailableForSaleDate,
+	UnitPrice
+FROM
+	ContosoRetailDW.dbo.DimProduct
+```
+
+
+### Aula 8: INSERT INTO - Adicionando novos valores na tabela
+
+```sql
+-- Adicionando novos valores na tabela
+
+```
+
+
+
+
+
+
+
+
+
+
+### Aula 16: Resolução Exercício 1
+- a) Crie um banco de dados chamado BD_Teste.
+
+```sql
+CREATE DATABASE BD_Teste
+```
+
+- b) Exclua o banco de dados criado no item anterior.
+
+```sql
+DROP DATABASE BD_Teste
+```
+
+- c) Crie um banco de dados chamado Exercicios.
+
+```sql
+CREATE DATABASE Exercicios
+```
+
+
+### Aula 17: Resolução Exercício 2
+- No banco de dados criado no exercício anterior, crie 3 tabelas, cada uma contendo as seguintes colunas. Lembre-se dos seguintes pontos: a) Garantir que o Banco de Dados Exercicios está selecionado. b) Definir qual será o tipo de dados mais adequado para cada coluna das tabelas. Lembrando que os tipos de dados mais comuns são: INT, FLOAT, VARCHAR e DATETIME. Por fim, faça um SELECT para visualizar cada tabela.
+
+- Tabela 1: dCliente (ID_Cliente, Nome_Cliente, Data_de _Nascimento)
+
+```sql
+CREATE TABLE dCliente(
+	ID_Cliente INT,
+	Nome_Cliente VARCHAR(200),
+	Data_de_Nascimento DATETIME
+)
+```
+
+- Tabela 2: dGerente (ID_Gerente, Nome_Gerente, Data_de_Contratacao, Salario)
+
+```sql
+CREATE TABLE dGerente(
+	ID_Gerente INT,
+	Nome_Gerente VARCHAR(200),
+	Data_de_Contratacao DATETIME,
+	Salario FLOAT
+)
+```
+ 
+- Tabela 3: fContratos (ID_Contrato, Data_de_Assinatura, ID_Cliente, ID_Gerente, Valor_do_Contrato)
+
+ ```sql
+CREATE TABLE dContratos(
+	ID_Contrato INT,
+	Data_de_Assinatura DATETIME,
+	ID_Cliente,
+	ID_Gerente,
+	Valor_do_Contrato FLOAT
+)
+```
+
+
+### Aula 18: Resolução Exercício 3
+- Em cada uma das 3 tabelas, adicione os seguintes valores:
+- Tablea dCliente
+![image](https://github.com/user-attachments/assets/cdc55860-c881-4018-b56f-4e616b35a42b)
+
 ```sql
 
 ```
 
+- Tabela dGerente
+![image](https://github.com/user-attachments/assets/7846c717-614e-4774-8a15-2648ca646dc2)
+
 ```sql
 
 ```
+
+- Tabela fContratos
+![image](https://github.com/user-attachments/assets/0f68015e-d44e-4126-9b16-3d05edbbc4dd)
+
+```sql
+
+```
+
+### Aula 19: Resolução Exercício 4
+- Novos dados deverão ser adicionados nas tabelas dCliente, dGerente e fContratos. Fique livre para adicionar uma nova linha em cada tabela contendo, respectivamente,
+- (1) um novo cliente (id cliente, nome e data de nascimento)
+
+```sql
+
+```
+
+- (2) um novo gerente (id gerente, nome, data de contratação e salário)
+
+```sql
+
+```
+
+(3) um novo contrato (id, data assinatura, id cliente, id gerente, valor do contrato)
+
+```sql
+
+```
+
+
+### Aula 20: Resolução Exercício 5
+- O contrato de ID igual a 4 foi registrado com alguns erros na tabela fContratos. Faça uma alteração na tabela atualizando os seguintes valores:
+	- Data_de_Assinatura: 17/03/2019
+	- ID_Gerente: 2
+	- Valor_do_Contrato: 33500
+
+```sql
+
+```
+
+### Aula 21: Resolução Exercício 6
+- Delete a linha da tabela fContratos que você criou na questão 4.
+
+```sql
+
+```
+
 
 ```sql
 
