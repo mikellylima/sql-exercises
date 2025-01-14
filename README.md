@@ -3896,12 +3896,9 @@ USE BDImpressionador
 ```
 
 ### Aula 6: CREATE TABLE - Criando a primeira tabela
+- Crie uma tabela chamada 'Produtos'. Essa abela deve conter 4 colunas: id_produt, nome_produto, data_validade e preco_produto. Certifique-se de que o tipo das colunas está correto.
 
 ```sql
-- Crie uma tabela chamada 'Produtos'
--- Essa abela deve conter 4 colunas: id_produt, nome_produto, data_validade e preco_produto
--- Certifique-se de que o tipo das colunas está correto.
-
 USE BDImpressionador
 
 CREATE TABLE Produtos(
@@ -3914,10 +3911,9 @@ CREATE TABLE Produtos(
 
 
 ### Aula 7: INSERT SELECT - Adicionando dados de outra tabela
+- Adicionando valores de outra tabela
 
 ```sql
--- Adicionando valores de outra tabela
-
 INSERT INTO Produtos(id_produto, nome_produto, data_validade, preco_produto)
 SELECT
 	ProductKey,
@@ -3930,20 +3926,102 @@ FROM
 
 
 ### Aula 8: INSERT INTO - Adicionando novos valores na tabela
+- Adicionando novos valores na tabela
 
 ```sql
--- Adicionando novos valores na tabela
+INSERT INTO Produtos(id_produto, nome_produto, data_validade, preco_produto)
+VALUES
+	(1, 'Arroz', '31/12/2021', 22.50)
+	(2, 'Feijão', '20/11/2022', 8.99)
+```
+
+
+### Aula 10: UPDATE - Atualizando o dado de uma tabela
+- Atualizando o dado de uma tabela
+
+```sql
+UPDATE Produtos
+SET nome_produto = 'Macarrão'
+WHERE id_produto = 2
+```
+
+
+### Aula 11: DELETE - Deletando dados
+- Deletando dados de uma tabela
+
+```sql
+DELETE
+FROM Produtos
+WHERE id_produto = 3
+```
+
+
+### Aula 12: DROP TABLE - Excluindo uma tabela
+- Excluindo uma tabela
+
+```sql
+DROP TABLE Produtos
+```
+
+
+### Aula 13: Código da tabela utilizada nos próximos exemplos
+
+```sql
+USE BDImpressionador
+
+CREATE TABLE Funcionarios(
+	id_funcionario int,
+	nome_funcionario varchar(100),
+	salario float,
+	data_nascimento date
+)
+
+INSERT INTO Funcionarios(id_funcionario, nome_funcionario, salario, data_nascimento)
+VALUES
+	(1, 'Lucas'		, 1500, '20/03/1990'),
+	(2, 'Andressa'	, 2300, '07/12/1988'),
+	(3, 'Felipe'	, 4000, '13/02/1993'),
+	(4, 'Marcelo'	, 7100, '10/04/1993'),
+	(5, 'Carla'		, 3200, '02/09/1986'),
+	(6, 'Juliana'	, 5500, '21/01/1989'),
+	(7, 'Mateus'	, 1900, '02/11/1993'),
+	(8, 'Sandra'	, 3900, '09/05/1990'),
+	(9, 'André'		, 1000, '13/03/1994'),
+	(10, 'Julio'	, 4700, '05/07/1992')
 
 ```
 
 
+### Aula 14: ALTER TABLE
+- ALTER TABLE: Adicionando, deletar ou modificar tipo de dados de uma coluna
+- Adicionar coluna:
 
+```sql
+ALTER TABLE Funcionarios
+ADD cargo VACHAR(100), bonus FLOAT
+```
 
+- Atualizando valores:
 
+```sql
+UPDATE Funcionarios
+SET cargo = 'Analista', bonus = 0.15
+WHERE id_funcionario = 1
+```
 
+- Alterar tipo de dados de uma coluna:
 
+```sql
+ALTER TABLE Funcionarios
+ALTER COLUMN salario INT
+```
 
+- Deletar coluna:
 
+```sql
+ALTER TABLE Funcionarios
+DROP COLUMN cargo, bonus
+```
 
 ### Aula 16: Resolução Exercício 1
 - a) Crie um banco de dados chamado BD_Teste.
@@ -3971,34 +4049,46 @@ CREATE DATABASE Exercicios
 - Tabela 1: dCliente (ID_Cliente, Nome_Cliente, Data_de _Nascimento)
 
 ```sql
+USE Exercicios
+
 CREATE TABLE dCliente(
 	ID_Cliente INT,
-	Nome_Cliente VARCHAR(200),
+	Nome_Cliente VARCHAR(100),
 	Data_de_Nascimento DATETIME
 )
+
+SELECT * from dClientes
 ```
 
 - Tabela 2: dGerente (ID_Gerente, Nome_Gerente, Data_de_Contratacao, Salario)
 
 ```sql
+USE Exercicios
+
 CREATE TABLE dGerente(
 	ID_Gerente INT,
 	Nome_Gerente VARCHAR(200),
 	Data_de_Contratacao DATETIME,
 	Salario FLOAT
 )
+
+SELECT * FROM dGerente
 ```
  
 - Tabela 3: fContratos (ID_Contrato, Data_de_Assinatura, ID_Cliente, ID_Gerente, Valor_do_Contrato)
 
  ```sql
+USE Exercicios
+
 CREATE TABLE dContratos(
 	ID_Contrato INT,
 	Data_de_Assinatura DATETIME,
-	ID_Cliente,
-	ID_Gerente,
+	ID_Cliente, INT
+	ID_Gerente INT,
 	Valor_do_Contrato FLOAT
 )
+
+SELECT * FROM dContratos
 ```
 
 
@@ -4008,41 +4098,78 @@ CREATE TABLE dContratos(
 ![image](https://github.com/user-attachments/assets/cdc55860-c881-4018-b56f-4e616b35a42b)
 
 ```sql
+USE Exercicios
 
+INSER INTO dCliente(ID_Cliente, Nome_Cliente, Data_de_Nascimento)
+VALUES
+	(1, 'André Martins', '1989-02-12'),
+	(2, 'Bárbara Campos', '1992-05-07'),
+	(3, 'Carol Freitas', '1985-04-23'),
+	(4, 'Diego Cardoso', '1994-10-11'),
+	(5, 'Eduardo Pereira', '1988-11-09'),
+	(6, 'Fabiana Silva', '1989-09-02'),
+	(7, 'Gustavo Barbosa', '1993-06-17'),
+	(8, 'Helen Viana', '1990-02-11')
 ```
 
 - Tabela dGerente
 ![image](https://github.com/user-attachments/assets/7846c717-614e-4774-8a15-2648ca646dc2)
 
 ```sql
+USE Exercicios
 
+INSERT INTO dGerente(ID_Gerente, Nome_Gerente, Data_de_Contratacao, Salario)
+VALUES
+	(1, 'Lucas Sampaio', '2015-03-21', 6700),
+	(2, 'Mariana Padilha', '2011-01-10', 9900),
+	(3, 'Nathália Santos', '2018-10-03', 7200),
+	(4, 'Otávio Costa', '2017-04-18', 11000)
 ```
 
 - Tabela fContratos
 ![image](https://github.com/user-attachments/assets/0f68015e-d44e-4126-9b16-3d05edbbc4dd)
 
 ```sql
+USE Exercicios
 
+INSERT INTO fContratos(ID_Contrato, Data_de_Assinatura, ID_Cliente, ID_Gerente, Valor_do_Contrato)
+VALUES
+	(1, '2019-01-12', 8, 1, 23000),
+	(2, '2019-02-10', 3, 2, 15500),
+	(3, '2019-03-07', 7, 2, 6500),
+	(4, '2019-03-15', 1, 3, 33000),
+	(5, '2019-03-21', 5, 4, 11100),
+	(6, '2019-03-23', 4, 2, 5500),
+	(7, '2019-03-28', 9, 3, 55000),
+	(8, '2019-04-04', 2, 1, 31000),
+	(9, '2019-04-05', 10, 4, 3400),
+	(10, '2019-04-05', 6, 2, 9200)
 ```
 
 ### Aula 19: Resolução Exercício 4
-- Novos dados deverão ser adicionados nas tabelas dCliente, dGerente e fContratos. Fique livre para adicionar uma nova linha em cada tabela contendo, respectivamente,
+- Novos dados deverão ser adicionados nas tabelas dCliente, dGerente e fContratos. Fique livre para adicionar uma nova linha em cada tabela contendo, respectivamente.
 - (1) um novo cliente (id cliente, nome e data de nascimento)
 
 ```sql
-
+INSER INTO dCliente(ID_Cliente, Nome_Cliente, Data_de_Nascimento)
+VALUES
+	(9, 'Mikelly Lima', '1995-12-03')
 ```
 
 - (2) um novo gerente (id gerente, nome, data de contratação e salário)
 
 ```sql
-
+INSERT INTO dGerente(ID_Gerente, Nome_Gerente, Data_de_Contratacao, Salario)
+VALUES
+	(5, 'Mikelly Lima', '2025-12-07', 15000)
 ```
 
 (3) um novo contrato (id, data assinatura, id cliente, id gerente, valor do contrato)
 
 ```sql
-
+INSERT INTO fContratos(ID_Contrato, Data_de_Assinatura, ID_Cliente, ID_Gerente, Valor_do_Contrato)
+VALUES
+	(11, '2025-10-12', 9, 5, 100000)
 ```
 
 
@@ -4053,15 +4180,31 @@ CREATE TABLE dContratos(
 	- Valor_do_Contrato: 33500
 
 ```sql
+USE Exercicios
 
+UPDATE fContratos
+SET Data_de_Assinatura = '2019-03-17',
+	ID_Gerente = 2,
+	Valor_do_Contrato = 33500
+WHERE ID_Contrato = 4
 ```
 
 ### Aula 21: Resolução Exercício 6
 - Delete a linha da tabela fContratos que você criou na questão 4.
 
 ```sql
+USE Exercicios
 
+DELETE
+FROM fContratos
+WHERE ID_Contrato = 11
 ```
+
+
+------------
+## Módulo 15: 
+
+### 
 
 
 ```sql
