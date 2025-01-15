@@ -4337,7 +4337,180 @@ WHERE EXISTS(
 ```
 
 
+### Aula 9: Subquery na prática - Aplicação com o SELECT
+- Exemplo: Retornar uma tabela com todos os produtos (ID Produto e Nome Produto) e também o total de vendas para cada produto
 
+```sql
+SELECT
+	ProductKey,
+	ProductName,
+	(SELECT COUNT(ProductKey) FROM FactSales WHERE FactSales.ProductKey = DimProduct.ProductKey) AS 'Qtd. Vendas'
+FROM
+	DimProduct
+```
+
+
+### Aula 10: Subquery na prática - Aplicação com o FROM
+- Exemplo: Retornar a quantidade total de produtos da marca Contoso.
+
+```sql
+-- Possibilidade 1
+SELECT
+	COUNT(*)
+FROM DimProduct
+WHERE BrandName = 'Contoso'
+
+-- Possibilidade 2
+SELECT
+	COUNT(*)
+FROM
+	(SELECT * FROM DimProduct WHERE BrandName = 'Contoso') AS T
+```
+
+
+### Aula 12: Subquery aninhada
+- Exemplo: Descubra os nomes dos clientes que ganham o segundo maior salário.
+
+```sql
+SELECT
+	*
+FROM
+	DimCustomer
+WHERE CustomerType = 'Person'
+ORDER BY YearlyIncome DESC
+
+
+SELECT
+	DISTINCT TOP(2) YearlyIncome
+FROM
+	DimCustomer
+WHERE CustomerType = 'Person'
+ORDER BY YearlyIncome DESC
+
+
+-- Etapas
+--1. Descobrir o maior salário
+--2. Descobrir o segundo maior salário
+--3. Descobrir os nomes dos clientes que ganham o segundo maior salário
+```
+
+
+### Aula 13: Subquery aninhada
+- Exemplo: Descubra os nomes dos clientes que ganham o segundo maior salário.
+
+```sql
+-- Etapas
+--1. Descobrir o maior salário
+--2. Descobrir o segundo maior salário
+--3. Descobrir os nomes dos clientes que ganham o segundo maior salário
+
+SELECT
+	CustomerKey,
+	FirstName,
+	Lastname,
+	YearlyIncome
+FROM
+	DimCustomer
+WHERE YearlyIncome = (
+	SELECT
+		MAX(YearlyIncome)
+	FROM
+		DimCustomer
+	WHERE YearlyIncome < (
+		SELECT
+			MAX(YearlyIncome)
+		FROM
+			DimCustomer
+		WHERE CustomerType = 'Person'
+	)
+
+)
+```
+
+
+### Aula 14: CTE - O que é e como criar
+- Exemplo: Crie uma CTE para armazenar o resultado de uma consulta que contenha: ProductKey, ProductName, BrandName, ColorName e UnitPrice, apenas para a marca Contoso.
+
+```sql
+WITH cte AS (
+SELECT
+	ProductKey,
+	ProductName,
+	BrandeName,
+	ColorName,
+	UnitPrice
+FROM
+	DimProduct
+WHERE BrandName = 'Contoso'
+)
+```
+
+
+### Aula 15: Calculando agregações com CTE
+- Exemplo: Crie uma CTE que seja o resultado do agrupamento de total de produtos por marca. Faça uma média de produtos por marca.
+
+```sql
+WITH cte AS (
+SELECT
+	BrandName,
+	COUNT(*) AS 'Total'
+FROM
+	DimProduct
+GROUP BY BrandName
+)
+
+SELECT AVG(Total) FROM cte
+```
+
+
+### Aula 16: Nomeando colunas de uma CTE
+- Exemplo: Crie uma CTE que seja o resultado do agrupamento de total de produtos por marca. Faça uma média de produtos por marca.
+
+```sql
+WITH cte (Marca, Total) AS (
+SELECT
+	BrandName,
+	COUNT(*)
+FROM
+	DimProduct
+GROUP BY BrandName
+)
+
+SELECT AVG(Total) FROM cte 
+```
+
+
+### Aula 17: Criando múltiplas CTE's
+- Exemplo: Crie 2 CTE's
+- 1. A primeira, chamada produtos_contoso, deve conter as seguintes colunas (DimProduct): ProductKey, ProductName, BrandName
+- 2. A segunda, chamada vendas_top100, deve ser um top 100 vendas mais recentes, considerando as seguintes colunas da tabela FactSales: SalesKey, ProductKey, DateKey, SalesQuantity
+- Por fim, faça um INNER JOIN dessas tabelas
+
+```sql
+WITH produtos_contoso AS (
+SELECT
+	ProductKey,
+	ProductName,
+	BrandName
+FROM
+	DimProduct
+WHERE BrandName = 'Contoso'
+),
+vendas_top100 (
+SELECT TOP(100)
+	SalesKey,
+	ProductKey,
+	DateKey,
+	SalesQuantity
+FROM
+	FactSales
+ORDER BY DateKey DESC
+)
+
+SELECT * FROM vendas_top100
+INNER JOIN produtos_contoso
+	ON vendas_top100.ProductKey = produtos_contoso.ProductKey
+```
 
 
 ### Aula 19: Resolução Exercício 1
