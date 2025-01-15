@@ -4204,8 +4204,236 @@ WHERE ID_Contrato = 11
 ------------
 ## Módulo 15: 
 
-### 
+### Aula 3: Subquery na prática - Aplicação com o Where (Exemplo 1)
+- Exemplo 1: Quais produtos da tabela DimProduct possuem custos acima da média?
 
+```sql
+SELECT
+	*
+FROM
+	DimProduct
+WHERE UnitCost > (SELECT AVG(UnitCost) FROM DimProduct)
+```
+
+
+### Aula 4: Subquery na prática - Aplicação com o Where (Exemplo 2)
+- - Exemplo 2: Faça uma consulta para retornar os produtos da categoria 'Televisions'. Tome cuidado pois não temos a informação de Nome da Subcategoria na tabela DimProduct. Dessa forma, precisaremos criar um SELECT que descubra o ID da categoria 'Televisions' e passar esse resultado como o valor que queremos filtrar dentro do WHERE.
+
+```sql
+SELECT
+	*
+FROM
+	DimProduct
+WHERE ProductSubcategoryKey =
+	(SELECT ProductSubcategoryKey FROM DimProductSubcategory
+		WHERE ProductSubcategoryName = 'Televisions')
+```
+
+
+### Aula 5: Subquery na prática - Aplicação com o Where (Exemplo 3)
+- Exemplo 3: Filtre a tabela FactSales e mostre apenas as vendas referentes às lojas com 100 ou mais funcionários
+
+```sql
+SELECT * FROM FactSales
+WHERE StoreKey IN (
+	SELECT
+		StoreKey
+	FROM
+		DimStore
+	WHERE EmployeeCount >= 100)
+```
+
+
+### Aula 6 de 28: ANY, SOME e ALL
+
+```sql
+CREATE TABLE funcionarios(
+id_funcionario INT,
+nome VARCHAR(50),
+idade INT,
+sexo VARCHAR(50))
+
+INSERT INTO funcionarios(id_funcionario, nome, idade, sexo)
+VALUES	
+	(1, 'Julia', 20, 'F'),
+	(2, 'Daniel', 21, 'M'),
+	(3, 'Amanda', 22, 'F'),
+	(4, 'Pedro', 23, 'M'),
+	(5, 'André', 24, 'M'),
+	(6, 'Luisa', 25, 'F')
+```
+
+- Selecione os funcionários do sexo masculino (MAS, utilizando a coluna de IDADE para isso)
+
+```sql
+SELECT * FROM funcionarios
+WHERE Idade IN (21, 23, 24)
+
+SELECT * FROM funcionarios
+WHERE Idade IN (SELECT Idade FROM funcionarios WHERE sexo = 'M')
+
+/*
+= ANY(valor1, valor2, valor3) :
+Equivalente ao IN, retorna as lunhas da tabela que sejam iguais ao valor1, OU valor2, OU valor3
+*/
+
+SELECT * FROM funcionarios
+WHERE Idade = ANY (SELECT Idade FROM funcionarios WHERE sexo = 'M')
+
+/*
+> ANY(valor1, valor2, valor3) :
+Retorna as linhas da tabela com valores maiores que o valor1, OU valor2, OU valor3. Ou seja, maior que o mínimo dos valores
+*/
+
+SELECT * FROM funcionarios
+WHERE Idade > ANY (SELECT Idade FROM funcionarios WHERE sexo = 'M')
+
+/*
+< ANY(valor1, valor2, valor3) :
+Retorna as linhas da tabela com valores maiores que o valor1, OU valor2, OU valor3. Ou seja, maior que o máximo dos valores
+*/
+
+SELECT * FROM funcionarios
+WHERE Idade < ANY (SELECT Idade FROM funcionarios WHERE sexo = 'M')
+
+-- O ANY pode ser substituído pelo SOME.
+
+/*
+> ALL(valor1, valor2, valor3) :
+Retorna as linhas da tabela com valores maiores que o valor1, E valor2, E valor3. Ou seja, maior que o máximo dos valores
+*/
+
+SELECT * FROM funcionarios
+WHERE Idade > ALL (SELECT Idade FROM funcionarios WHERE sexo = 'M')
+
+/*
+< ALL(valor1, valor2, valor3) :
+Retorna as linhas da tabela com valores menores que o valor1, E valor2, E valor3. Ou seja, menor que o mínimo dos valores
+*/
+
+SELECT * FROM funcionarios
+WHERE Idade < ALL (SELECT Idade FROM funcionarios WHERE sexo = 'M')
+```
+
+
+### Aulas 7: EXISTS
+- Exemplo: Retornar uma tabela com todos os produtos (ID Produto e Nome Produto) que possuem alguma venda no dia 01/01/2007
+
+```sql
+SELECT
+	Productkey,
+	ProductName
+FROM
+	DimProduct
+WHERE EXISTS(
+	SELECT
+		ProductKey
+	FROM
+		FactSales
+	WHERE
+		Datekey = '01/01/2007'
+		AND FactSales.ProductKey = DimProduct.ProductKey
+	)
+```
+
+
+
+
+
+### Aula 19: Resolução Exercício 1
+- Para fins fiscais, a contabilidade da empresa precisa de uma tabela contendo todas as vendas referentes à loja ‘Contoso Orlando Store’. Isso porque essa loja encontra-se em uma região onde a tributação foi modificada recente. Portanto, crie uma consulta ao Banco de Dados para obter uma tabela FactSales contendo todas as vendas desta loja.
+
+```sql
+SELECT
+	*
+FROM
+	FactSales
+WHERE Store > (SELECT AVG(UnitCost) FROM DimProduct)
+```
+
+
+### Aula 20: Resolução Exercício 2
+- O setor de controle de produtos quer fazer uma análise para descobrir quais são os produtos que possuem um UnitPrice maior que o UnitPrice do produto de ID igual a 1893.
+- a) A sua consulta resultante deve conter as colunas ProductKey, ProductName e UnitPrice da tabela DimProduct.
+
+```sql
+
+```
+
+- b) Nessa query você também deve retornar uma coluna extra, que informe o UnitPrice do
+produto 1893.
+
+```sql
+
+```
+
+
+### Aula 21: Resolução Exercício 3
+- A empresa Contoso criou um programa de bonificação chamado “Todos por 1”. Este programa consistia no seguinte: 1 funcionário seria escolhido ao final do ano como o funcionário destaque, só que a bonificação seria recebida por todos da área daquele funcionário em particular. O objetivo desse programa seria o de incentivar a colaboração coletiva entre os funcionários de uma mesma área. Desta forma, o funcionário destaque beneficiaria não só a si, mas também a todos os colegas de sua área.
+Ao final do ano, o funcionário escolhido como destaque foi o Miguel Severino. Isso significa que todos os funcionários da área do Miguel seriam beneficiados com o programa. O seu objetivo é realizar uma consulta à tabela DimEmployee e retornar todos os funcionários da área “vencedora” para que o setor Financeiro possa realizar os pagamentos das bonificações.
+
+```sql
+
+```
+
+
+### Aula 22: Resolução Exercício 4
+- Faça uma query que retorne os clientes que recebem um salário anual acima da média. A sua query deve retornar as colunas CustomerKey, FirstName, LastName, EmailAddress e YearlyIncome. Obs: considere apenas os clientes que são 'Pessoas Físicas'
+
+```sql
+
+```
+
+
+### Aula 23: Resolução Exercício 5
+-  A ação de desconto da Asian Holiday Promotion foi uma das mais bem sucedidas da empresa. Agora, a Contoso quer entender um pouco melhor sobre o perfil dos clientes que compraram produtos com essa promoção. Seu trabalho é criar uma query que retorne a lista de clientes que compraram nessa promoção.
+
+```sql
+
+```
+
+
+### Aula 24: Resolução Exercício 6
+- A empresa implementou um programa de fidelização de clientes empresariais. Todos aqueles que comprarem mais de 3000 unidades de um mesmo produto receberá descontos em outras compras. Você deverá descobrir as informações de CustomerKey e CompanyName destes clientes.
+
+```sql
+
+```
+
+
+### Aula 25: Resolução Exercício 7
+- Você deverá criar uma consulta para o setor de vendas que mostre as seguintes colunas da tabela DimProduct: ProductKey, ProductName, BrandName, UnitPrice, Média de UnitPrice.
+
+```sql
+
+```
+
+
+### Aula 26: Resolução Exercício 8
+- Faça uma consulta para descobrir os seguintes indicadores dos seus produtos: Maior quantidade de produtos por marca, Menor quantidade de produtos por marca e Média de produtos por marca
+
+```sql
+
+```
+
+
+### Aula 27: Resolução Exercício 9
+- Crie uma CTE que seja o agrupamento da tabela DimProduct, armazenando o total de produtos por marca. Em seguida, faça um SELECT nesta CTE, descobrindo qual é a quantidade máxima de produtos para uma marca. Chame esta CTE de CTE_QtdProdutosPorMarca.
+
+```sql
+
+```
+
+
+### Aula 28: Resolução Exercício 10
+- Crie duas CTEs. Faça um Join entre essas duas CTEs, e o resultado deve ser uma query contendo todas as colunas das duas tabelas. Observe nesse exemplo a diferença entre o LEFT JOIN e o INNER JOIN.
+- (i) a primeira deve conter as colunas ProductKey, ProductName, ProductSubcategoryKey, BrandName e UnitPrice, da tabela DimProduct, mas apenas os produtos da marca Adventure Works. Chame essa CTE de CTE_ProdutosAdventureWorks.
+
+```sql
+
+```
+
+- (ii) a segunda deve conter as colunas ProductSubcategoryKey, ProductSubcategoryName, da tabela DimProductSubcategory mas apenas para as subcategorias ‘Televisions’ e ‘Monitors’. Chame essa CTE de CTE_CategoriaTelevisionsERadio.
 
 ```sql
 
