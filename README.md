@@ -4752,9 +4752,133 @@ INNER JOIN CTE_CategoriaTelevisionsEMonitors AS CTM
 
 
 --------------
-## Módulo 16
+## Módulo 16: Loops no SQL
 
-### 
+### Aula 2: WHILE - Estrutura básica
+- Crie um contador que faça uma contagem de 1 até 10 utilizando a estrutura de repetição WHILE
+
+```sql
+DECLARE @varContador INT
+SET @varContador = 1
+
+WHILE @varContador <= 10
+BEGIN
+	PRINT 'O valor do contador é: ' + CONVERT(VARCHAR, @varContador)
+	SET @varContador = @varContador + 1
+END
+```
+
+
+### Aula 3: WHILE - Cuidado com loops infinitos
+- Cuidado com loops infinitos!!!
+
+```sql
+DECLARE @varContador INT
+SET @varContador = 1
+
+WHILE @varContador <= 5
+BEGIN
+	PRINT @varContador
+END
+```
+
+
+### Aula 4: BREAK - Interrompendo um loop antes do final
+- Faça um contador de 1 a 100. OBS: Se o valor do contador for igual a 15, então o loop WHILE deve ser encerrado.
+
+```sql
+DECLARE @varContador INT
+SET @varContador = 1
+
+WHILE @varContador <= 100
+BEGIN
+	IF @varContador = 15
+	BREAK
+	PRINT 'O valor do contador é: ' + CONVERT(VARCHAR, @varContador)
+	SET @varContador += 1
+END
+```
+
+
+### Aula 5: CONTINUE - Pulando repetições em um loop
+- Faça um contador de 1 a 10. OBS: Os números 3 ou 6 não podem ser printados na tela
+
+```sql
+DECLARE @varContador INT
+SET @varContador = 0
+
+WHILE @varContador < 10
+BEGIN
+	SET @varContador += 1
+	IF @varContador = 3 OR @varContador = 6
+	CONTINUE
+	PRINT 'O valor da variável é: ' + CONVERT(VARCHAR, @varContador)
+END
+```
+
+
+### Aula 7: Resolução Exercício 1
+- Utilize o Loop While para criar um contador que comece em um valor inicial @ValorInicial e termine em um valor final @ValorFinal. Você deverá printar na tela a seguinte frase: “O valor do contador é: “ + ___
+
+```sql
+DECLARE @ValorInicial INT, @ValorFinal INT
+SET @ValorInicial = 1
+SET @ValorFinal = 10
+
+WHILE @ValorInicial <= @ValorFinal
+BEGIN
+	PRINT 'O valor do contador é: ' + CONVERT(VARCHAR, @ValorInicial)
+	SET @varInicial += 1
+END
+```
+
+
+### Aula 8: Resolução Exercício 2
+- Você deverá criar uma estrutura de repetição que printe na tela a quantidade de contratações para cada ano, desde 1996 até 2003. A informação de data de contratação encontra-se na coluna HireDate da tabela DimEmployee. Utilize o formato:
+	- X contratações em 1996
+	- Y contratações em 1997
+	- Z contratações em 1998
+- Obs: a coluna HireDate contém a data completa (dd/mm/aaaa). Lembrando que você deverá printar a quantidade de contratações por ano.
+
+```sql
+DECLARE @AnoInicial INT = 1996
+DECLARE @AnoFinal INT = 2003
+
+WHILE @AnoInicial <= @AnoFinal
+BEGIN
+	DECLARE @QtdFuncionario INT = (
+		SELECT COUNT(*) FROM DimEmployee
+		WHERE YEAR(HireDate) = @AnoInicial
+	)
+	PRINT CONCAT(@QtdFuncionarios, ' contratações em ', @AnoInicial)
+	SET @AnoInicial += 1
+END
+```
+
+
+### Aula 9: Resolução Exercício 3
+- Utilize um Loop While para criar uma tabela chamada Calendario, contendo uma coluna que comece com a data 01/01/2021 e vá até 31/12/2021.
+
+```sql
+CREATE TABLE Calendario (
+	Data DATE
+)
+
+DECLARE @dataInicial DATE = 01/01/2021
+DECLARE @dataFinal DATE = 31/12/2021
+
+WHILE @dataInical <= @dataFinal
+BEGIN
+	INSERT INTO Calendario (Data) VALUES (@dataInicial)
+	SET @dataInicial = DATEADD(DAY, 1, @dataInicial)
+END
+
+SELECT * FROM Calendario
+```
+
+
+------------
+## Módulo 17: 
 ```sql
 
 ```
@@ -4779,6 +4903,49 @@ INNER JOIN CTE_CategoriaTelevisionsEMonitors AS CTM
 
 ```
 
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
 
 
 
