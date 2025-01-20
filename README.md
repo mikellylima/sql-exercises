@@ -4878,7 +4878,296 @@ SELECT * FROM Calendario
 
 
 ------------
-## Módulo 17: 
+## Módulo 17: Window Functions (Funções de Janela)
+
+### Aula 2: Código para criar a tabela Lojas
+
+```sql
+CREATE DATABASE WF
+USE WF
+
+CREATE TABLE Lojas(
+   ID_Loja INT,
+   Nome_Loja VARCHAR(100),
+   Regiao VARCHAR(100),
+   Qtd_Vendida FLOAT
+)
+
+INSERT INTO LOJAS(ID_Loja, Nome_Loja, Regiao, Qtd_Vendida)
+VALUES
+   (1, 'Botafogo Praia&Mar', 'Sudeste', 1800),
+   (2, 'Lojas Vitoria', 'Sudeste', 800),
+   (3, 'Empórioi Mineirinho', 'Sudeste', 2300),
+   (4, 'Central Paulista', 'Sudeste', 1800),
+   (5, 'Rio 90 graus', 'Sudeste', 700),
+   (6, 'Casa Flor & Anópolis', 'Sul', 2100),
+   (7, 'Pampas & Co', 'Sul', 990),
+   (8, 'Paraná Papéis', 'Sul', 2800),
+   (9, 'Amazonas Prime', 'Norte', 4200),
+   (10, 'Pará Bens', 'Norte', 3200),
+   (11, 'Tintas Rio Branco', 'Norte', 1500),
+   (12, 'Nordestemido Hall', 'Nordeste', 1910),
+  (13, 'Cachoerinha Loft', 'Nordeste', 2380)
+```
+
+
+### Aula 3: Funções de Agregação - SUM, COUNT, AVG, MIN, MAX
+- Crie uma coluna contendo a SOMA total das vendas da tabela lojas.
+
+```sql
+SELECT
+	ID_Loja,
+	Nome_Loja,
+	Regiao,
+	Qtd_Vendida,
+	SUM(Qtd_Vendida) OVER() AS 'Total Vendido'
+FROM Lojas
+
+-- Soma por Região
+SELECT
+	ID_Loja,
+	Nome_Loja,
+	Regiao,
+	Qtd_Vendida,
+	SUM(Qtd_Vendida) OVER(PARTITION BY Regiao) AS 'Total Vendido'
+FROM Lojas
+```
+
+- Crie uma coluna contendo a CONTAGEM das vendas da tabela lojas
+
+```sql
+SELECT
+	ID_Loja,
+	Nome_Loja,
+	Regiao,
+	Qtd_Vendida,
+	COUNT(*) OVER() AS 'Qtd. Lojas'
+FROM Lojas
+
+-- Contagem por Região
+SELECT
+	ID_Loja,
+	Nome_Loja,
+	Regiao,
+	Qtd_Vendida,
+	COUNT(*) OVER(PARTITION BY Regiao) AS 'Qtd. Lojas'
+FROM Lojas
+```
+
+- Crie uma coluna contendo a MÉDIA das vendas da tabela lojas
+
+```sql
+SELECT
+	ID_Loja,
+	Nome_Loja,
+	Regiao,
+	Qtd_Vendida,
+	AVG(Qtd_Vendida) OVER() AS 'Média Lojas'
+FROM Lojas
+
+-- Média por Região
+SELECT
+	ID_Loja,
+	Nome_Loja,
+	Regiao,
+	Qtd_Vendida,
+	AVG(Qtd_Vendida) OVER(PARTITION BY Regiao) AS 'Média Lojas'
+FROM Lojas
+```
+
+- Crie uma coluna contendo o MIN/MAX das vendas da tabela lojas
+
+```sql
+-- MIN
+SELECT
+	ID_Loja,
+	Nome_Loja,
+	Regiao,
+	Qtd_Vendida,
+	MIN(Qtd_Vendida) OVER() AS 'Menor venda'
+FROM Lojas
+
+-- Menor venda por Região
+SELECT
+	ID_Loja,
+	Nome_Loja,
+	Regiao,
+	Qtd_Vendida,
+	MIN(Qtd_Vendida) OVER(PARTITION BY Regiao) AS 'Menor venda'
+FROM Lojas
+
+
+-- MAX
+SELECT
+	ID_Loja,
+	Nome_Loja,
+	Regiao,
+	Qtd_Vendida,
+	MAX(Qtd_Vendida) OVER() AS 'Maior venda'
+FROM Lojas
+
+-- Menor venda por Região
+SELECT
+	ID_Loja,
+	Nome_Loja,
+	Regiao,
+	Qtd_Vendida,
+	MAX(Qtd_Vendida) OVER(PARTITION BY Regiao) AS 'Maior venda'
+```
+
+
+### Aula 4: Calculando percentual de participação (Parte 1)
+- a) Calcule o % de participação de cada loja em relação ao total de vendas de todas as lojas.
+
+```sql
+SELECT
+	ID_Loja,
+	Nome_Loja,
+	Regiao,
+	Qtd_Vendida,
+	SUM(Qtd_Vendida) OVER() AS 'Total Vendido',
+	FORMAT(Qtd_Vendida)/(SUM(Qtd_Vendida) OVER() AS 'Total Vendido'), '0.00%') AS '% do Total'
+FROM Lojas
+ORDER BY ID_Loja
+```
+
+
+### Aula 5: Calculando percentual de participação (Parte 2)
+- b) Calcule o % de participacao de cada loja em relação ao total de vendas de cada região.
+
+```sql
+SELECT
+	ID_Loja,
+	Nome_Loja,
+	Regiao,
+	Qtd_Vendida,
+	SUM(Qtd_Vendida) OVER(PARTITION BY Regiao) AS 'Total Vendido',
+	FORMAT(Qtd_Vendida)/(SUM(Qtd_Vendida) OVER(PARTITION BY Regiao) AS 'Total Vendido'), '0.00%') AS '% do Total'
+FROM Lojas
+ORDER BY ID_Loja
+```
+
+
+### Aula 6: Funções de Classificação - ROW_NUMBER, RANK, DENSE_RANK, NTILE
+
+```sql
+SELECT
+	ID_Loja,
+	Nome_Loja,
+	Regiao,
+	Qtd_Vendida,
+	ROW_NUMBER() OVER(ORDER BY Qtd_Vendida DESC) AS 'rownumber',
+	RANK() OVER(ORDER BY Qtd_Vendida DESC) AS 'rank',
+	DENSE_RANK() OVER(ORDER BY Qtd_Vendida DESC) AS 'dense',
+	NTILE(2) OVER(ORDER BY Qtd_Vendida DESC) AS 'ntile'
+FROM Lojas
+```
+
+
+### Aula 7 de 26: Funções de Classificação mais PARTITION BY
+
+```sql
+SELECT
+	ID_Loja,
+	Nome_Loja,
+	Regiao,
+	Qtd_Vendida,
+	ROW_NUMBER() OVER(PARTITION BY Regiao ORDER BY Qtd_Vendida DESC) AS 'rownumber',
+	RANK() OVER(PARTITION BY Regiao ORDER BY Qtd_Vendida DESC) AS 'rank',
+	DENSE_RANK() OVER(PARTITION BY Regiao ORDER BY Qtd_Vendida DESC) AS 'dense',
+	NTILE(2) OVER(PARTITION BY Regiao ORDER BY Qtd_Vendida DESC) AS 'ntile'
+FROM Lojas
+ORDER BY ID_Lojas
+```
+
+
+### Aula 8: RANK mais GROUP BY
+- Crie uma tabela com o total de vendas por região e adicione uma coluna de ranking nessa tabela.
+
+```sql
+SELECT
+	Regiao AS 'Região',
+	SUM(Qtd_Vendida) AS 'Total Vendida',
+	RANK() OVER(ORDER BY SUM(Qtd_Vendida) DESC) AS 'Ranking'
+FROM
+	Lojas
+GROUP BY Regiao
+ORDER BY [Total Vendido] DESC
+```
+
+
+### Aula 9 de 26: Cálculo de soma móvel e média móvel
+
+```sql
+CREATE TABLE Resultado(
+Data_Fechamento DATETIME,
+Mes_Ano VARCHAR(100),
+Faturamento_MM FLOAT)
+
+
+INSERT INTO Resultado(Data_Fechamento, Mes_Ano, Faturamento_MM)
+VALUES
+	('01/01/2020', 'JAN-20', 8),
+	('01/02/2020', 'FEV-20', 10),
+	('01/03/2020', 'MAR-20', 6),
+	('01/04/2020', 'ABR-20', 9),
+	('01/05/2020', 'MAI-20', 5),
+	('01/06/2020', 'JUN-20', 4),
+	('01/07/2020', 'JUL-20', 7),
+	('01/08/2020', 'AGO-20', 11),
+	('01/09/2020', 'SET-20', 9),
+	('01/10/2020', 'OUT-20', 12),
+	('01/11/2020', 'NOV-20', 11),
+	('01/12/2020', 'DEZ-20', 10)
+
+SELECT * FROM Resultado
+```
+
+- Soma móvel
+
+```sql
+SELEC
+	Data_Fechamento,
+	Mes_Ano,
+	Faturamento_MM,
+	SUM(Faturamento_MM) OVER(ORDER BY Data_Fechamento ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) AS 'Soma móvel'
+FROM
+	Resultado
+```
+
+- Média móvel
+
+```sql
+SELEC
+	Data_Fechamento,
+	Mes_Ano,
+	Faturamento_MM,
+	AVG(Faturamento_MM) OVER(ORDER BY Data_Fechamento ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) AS 'Média móvel'
+FROM
+	Resultado
+```
+
+
+### Aula 10: Cálculo de acumulado
+- Soma acumulada
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+
 ```sql
 
 ```
@@ -4947,6 +5236,133 @@ SELECT * FROM Calendario
 
 ```
 
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
 
 
 
