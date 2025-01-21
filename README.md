@@ -5064,7 +5064,7 @@ FROM Lojas
 ```
 
 
-### Aula 7 de 26: Funções de Classificação mais PARTITION BY
+### Aula 7: Funções de Classificação mais PARTITION BY
 
 ```sql
 SELECT
@@ -5175,7 +5175,7 @@ FROM
 ```
 
 
-### Aula 12 de 26: Funções de Offset (Deslocamento) - LAG e LEAD
+### Aula 12: Funções de Offset (Deslocamento) - LAG e LEAD
 
 ```sql
 SELECT
@@ -5245,12 +5245,10 @@ GROUP BY BrandName, ColorName
 
 ```sql
 SELECT
-	BrandName AS 'Marca',
-	ColorName AS 'Cor',
-	COUNT(*) AS 'Quantidade_Vendida',
-	ROUND(SUM(SalesAmount), 2) AS 'Receita_Total',
-	COUNT(*) OVER() AS 'Total_Vendido'
+	*,
+	SUM(Quantidade_Vendida) OVER() AS 'Qtd Total Produtos'
 FROM vwProdutos
+ORDER BY Marca
 ```
 
 
@@ -5273,13 +5271,11 @@ GROUP BY BrandName, ColorName
 
 ```sql
 SELECT
-	BrandName AS 'Marca',
-	ColorName AS 'Cor',
-	COUNT(*) AS 'Quantidade_Vendida',
-	ROUND(SUM(SalesAmount), 2) AS 'Receita_Total',
-	COUNT(*) OVER() AS 'Total_Vendido',
-	COUNT(*) OVER(PARTITION BY BrandName) AS 'Total_Vendido_Marca'
+	*,
+	SUM(Quantidade_Vendida) OVER() AS 'Qtd Total Produtos',
+	SUM(Quantidade_Vendida) OVER(PARTITION BY Marca) AS 'Qtd Total Vendica (por Marca)'
 FROM vwProdutos
+ORDER BY Marca
 ```
 
 
@@ -5301,7 +5297,13 @@ GROUP BY BrandName, ColorName
 - Calcule o % de participação do total de vendas de produtos por marca. Ex: A marca A. Datum teve uma quantidade total de vendas de 199.041 de um total de 3.406.089 de vendas. Isso significa que a da marca A. Datum é 199.041/3.406.089 = 5,84%.
 
 ```sql
-
+SELECT
+	*,
+	SUM(Quantidade_Vendida) OVER() AS 'Qtd Total Produtos',
+	SUM(Quantidade_Vendida) OVER(PARTITION BY Marca) AS 'Qtd Total Vendica (por Marca)',
+	FORMAT(1.0*SUM(Quantidade_Vendida) OVER(PARTITION BY Marca)/(SUM(Quantidade_Vendida) OVER()), '0.00%') AS '% Participação'
+FROM vwProdutos
+ORDER BY Marca
 ```
 
 
@@ -5325,7 +5327,13 @@ GROUP BY BrandName, ColorName
 
 
 ```sql
-
+SELECT
+	Marca,
+	Cor,
+	Quantidade_Vendida,
+	RANK() OVER(ORDER BY Quantidade_Vendida DESC) AS 'Rank'
+FROM vwProdutos
+WHERE Marca = 'Contoso'
 ```
 
 ### Aula 21: Resolução Desafio 1
@@ -5337,7 +5345,16 @@ GROUP BY BrandName, ColorName
 	- 2- As colunas Ano, Mês e Qtd_Lojas correspondem, respectivamente, às seguintes colunas: CalendarYear e CalendarMonthLabel da tabela DimDate e uma contagem da coluna OpenDate da tabela DimStore.
 
  ```sql
-
+CREATE VIEW vwHistoricoLojas AS
+SELECT
+	ROW_NUMBER() OVER(ORDER BY CalendarMonth) AS 'ID',
+	CalendarYear AS 'Ano',
+	CalendarMonthLabel AS 'Mês',
+	COUNT(OpenDate) AS 'Qtd_Lojas'
+FROM DimDate
+LEFT JOIN DimStore
+	ON DimDate.Datekey = DimStore.OpenDate
+GROUP BY CalendarYear, CalendarMonthLabel, CalendarMonth
 ```
 
 
@@ -5345,7 +5362,10 @@ GROUP BY BrandName, ColorName
 - A partir da view criada no exercício anterior, você deverá fazer uma soma móvel considerando sempre o mês atual + 2 meses para trás.
 
 ```sql
-
+SELECT
+	*,
+	SUM(Qtd_Lojas) OVER(ORDER BY ID ROWS BETWEEN 2 PRECEDING AND CURRENT ROW)
+FROM vwHistoricoLojas
 ```
 
 
@@ -5353,7 +5373,10 @@ GROUP BY BrandName, ColorName
 - Utilize a vwHistoricoLojas para calcular o acumulado de lojas abertas a cada ano/mês.
 
 ```sql
-
+SELECT
+	*,
+	SUM(Qtd_Lojas) OVER(ORDER BY ID ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+FROM vwHistoricoLojas
 ```
 
 ### Aula 24: Resolução Desafio 2
@@ -5365,7 +5388,67 @@ GROUP BY BrandName, ColorName
 	- PASSO 5: Crie a View vwNovosClientes, que deve ter as colunas mostradas abaixo.
 
 ```sql
+-- Passo 1
+CREATE DATABASE Desafio
+USE Desafio
 
+-- Passo 2
+CREATE TABLE Calendario (
+	data DATE
+)
+
+DECLARE @varAnoInicial INT = YEAR(SELECT MIN(DateFirstPurchase) FROM ContosoRetailDW.dbo.DisCustomer)
+DECLARE @varAnoFinal INT = YEAR(SELECT MAX(DateFirstPurchase) FROM ContosoRetailDW.dbo.DisCustomer)
+
+DECLARE @varDataInicial DATE = DATEFROMPARTS(@varAnoInicial, 1, 1)
+DECLARE @varDataFinal DATE = DATEFROMPARTS(@varAnoFinal, 12, 31)
+
+WHILE @varDataInicial <= @varDataFinal
+BEGIN
+	INSERT INTO Calendario(data) VALUES(@varDataInicial)
+	SET @varDataInicial = DATEADD(DAY, 1, @varDataFinal)
+END
+
+-- Passo 3
+ALTER TABLE Calendario
+ADD Ano INT,
+	Mes INT,
+	Dia INT,
+	AnoMes INT,
+	NomeMes VARCHAR(50)
+
+-- Passo 4
+UPDATE Calendario SET Ano = YEAR(data)
+UPDATE Calendario SET Mes = MONTH(data)
+UPDATE Calendario SET Dia = DAY(data)
+UPDATE Calendario SET AnoMes = CONCAT(YEAR(data), FORMAT(MONTH(data), '00'))
+UPDATE Calendario SET NomeMes =
+	CASE
+		WHEN MONTH(data) = 1 THEN 'Janeiro'
+		WHEN MONTH(data) = 2 THEN 'Feveiro'
+		WHEN MONTH(data) = 3 THEN 'Março'
+		WHEN MONTH(data) = 4 THEN 'Abril'
+		WHEN MONTH(data) = 5 THEN 'Maio'
+		WHEN MONTH(data) = 6 THEN 'Junho'
+		WHEN MONTH(data) = 7 THEN 'Julho'
+		WHEN MONTH(data) = 8 THEN 'Agosto'
+		WHEN MONTH(data) = 9 THEN 'Setembro'
+		WHEN MONTH(data) = 10 THEN 'Outubro'
+		WHEN MONTH(data) = 11 THEN 'Novembro'
+		WHEN MONTH(data) = 12 THEN 'Dezembro'
+	END
+
+-- Passo 5
+CREATE VIEW vwNovosClientes AS
+SELECT
+	ROW_NUMBER() OVER(ORDER BY AnoMes) AS 'ID',
+	Ano,
+	NomeMes,
+	COUNT(DimCustomer.DateFirstPurchase) AS 'Novos_Clientes'
+FROM Calendario
+LEFT JOIN ContosoRetailDW.dbo.DimCustomer
+	ON Calendario.data = DimCustomer.DateFirstPurchase
+GROUP BY Ano, NomeMes, AnoMes
 ```
 
 
@@ -5373,25 +5456,37 @@ GROUP BY BrandName, ColorName
 - a) Faça um cálculo de soma móvel de novos clientes nos últimos 2 meses.
 
 ```sql
-
+SELECT
+	*,
+	SUM(Novos_Clientes) OVER(ORDER BY ID ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS 'Soma Móvel (2 meses)'
+FROM vwNovosClientes
 ```
 
 - b) Faça um cálculo de média móvel de novos clientes nos últimos 2 meses.
 
 ```sql
-
+SELECT
+	*,
+	AVG(Novos_Clientes) OVER(ORDER BY ID ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS 'Média Móvel (2 meses)'
+FROM vwNovosClientes
 ```
 
 - c) Faça um cálculo de acumulado dos novos clientes ao longo do tempo.
 
 ```sql
-
+SELECT
+	*,
+	SUM(Novos_Clientes) OVER(ORDER BY ID ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS 'Acumulado Total'
+FROM vwNovosClientes
 ```
 
 - d) Faça um cálculo de acumulado intra-ano, ou seja, um acumulado que vai de janeiro a dezembro de cada ano, e volta a fazer o cálculo de acumulado no ano seguinte.
 
 ```sql
-
+SELECT
+	*,
+	SUM(Novos_Clientes) OVER(PARTITION BY Ano ORDER BY ID ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS 'Acumulado YTD'
+FROM vwNovosClientes
 ```
 
 
@@ -5399,11 +5494,19 @@ GROUP BY BrandName, ColorName
 - Faça os cálculos de MoM e YoY para avaliar o percentual de crescimento de novos clientes, entre o mês atual e o mês anterior, e entre um mês atual e o mesmo mês do ano anterior.
 
 ```sql
-
+SELECT
+	*,
+	LAG(Novos_Clientes, 1) OVER(ORDER BY ID),
+	FORMAT(Novos_Clientes/NULLIF(LAG(Novos_Clientes, 1) OVER(ORDER BY ID), 0) - 1, '00.0%') AS '% MoM',
+	FORMAT(Novos_Clientes/NULLIF(LAG(Novos_Clientes, 12) OVER(ORDER BY ID), 0) - 1, '00.0%') AS '% YoY'
+FROM vwNovosClientes
 ```
 
 
+-----------
+##
 
+### 
 
 ```sql
 
