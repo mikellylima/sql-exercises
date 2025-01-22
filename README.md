@@ -5627,7 +5627,7 @@ VALUES
 -- Retornando nomes que começam com a letra 'M', 'E' ou 'K'
 SELECT *
 FROM Textos
-WHERE Tecto LIKE '[MEK]%'
+WHERE Texto LIKE '[MEK]%'
 
 -- Retornando nomes que possuem apenas 1 caracter
 SELECT *
@@ -5693,44 +5693,317 @@ FROM Nomes
 WHERE Nome LIKE '_[^Ee]%'
 ```
 
-```sql
 
+### Aula 9 de 10: LIKE - Filtrando caracteres especiais
+
+```sql
+USE BD_Collation
+CREATE TABLE Textos(
+	ID INT,
+	Texto VARCHAR(100) COLLATE Latin1_General_CS_AS
+)
+
+INSERT INTO Textos(ID, Texto)
+VALUES
+	(1, 'Marcos'), (2, 'Excel'), (3, 'leandro'), (4, 'K'), (5, 'X7'), (6, '19'), (7, '#M'), (8, '@9'), (9,'M'), ('0,'RT')
+
+-- Identificando caracteres esperciais
+SELECT *
+FROM Textos
+WHERE Texto LIKE '%[^a-z0-9]%'
 ```
 
-```sql
 
+### Aula 10 de 10: LIKE - Filtros especiais com números
+
+```sql
+USE BD_Collation
+CREATE TABLE Numero(
+	Numero DECIMAL(20, 2)
+)
+
+INSERT INTO Numeros(Numero)
+VALUES
+	(50), (30.23), (9), (100.54), (15.9), (6.5), (10), (501.76), (1000.56), (31)
+
+-- Retornando os números que possuem 2 dígitos na parte inteira
+SELECT *
+FROM Numeros
+WHERE Numero LIKE '[0-9][0-9].[0][0]'
+
+-- Retorando linhas que:
+-- 1. Possuem 3 dígitos na parte inteira, sendo o primeiro dígito igual a 5
+-- 2. O primeiro número da parte decimal seja 7
+-- 3. O segundo número da parte decimal seja um número entre 0 e 9
+
+SELECT *
+FROM Numeros
+WHERE Numero LIKE '[5]_.[7][0-9]'
 ```
 
-```sql
 
+------------
+## Módulo 20: Constraints
+
+### Aula 2: NOT NULL, UNIQUE, CHECK, DEFAULT, IDENTITY, PRIMARY KEY, FOREIGN KEY
+
+```sql
+-- I. CONSTRAINTS
+-- Constraints no SQL são regras (restrições) que podemos definir para uma coluna de uma tabela.
+-- Abaixo temos uma lista de restrições:
+
+-- 1. NOT NULL
+-- 2. UNIQUE
+-- 3. CHECK
+-- 4. DEFAULT
+-- 5. IDENTITY
+-- 6. PRIMARY KEY
+-- 7. FOREIGN KEY
+
+
+
+-- 1. NOT NULL
+-- Essa constraint não permite que sejam adicionados valores nulos na coluna.
+
+
+-- 2. UNIQUE
+-- Identifica uma coluna de forma única, sem permitir valores duplicados (mas, permite NULL).
+
+
+-- 3. CHECK
+-- Verifica se o valor adicionado na coluna atende a uma determinada condição.
+
+
+-- 4. DEFAULT
+-- Retorna um valor default caso a coluna não seja preenchida.
+
+
+-- 5. IDENTITY
+-- Permite que uma coluna siga uma auto numeração (usada em colunas de ID).
+
+
+-- 6. PRIMARY KEY
+-- Uma CHAVE PRIMÁRIA (PRIMARY KEY) é uma coluna que identifica de forma única as linhas 
+-- de uma tabela. Nenhum dos valores de uma coluna de chave primária deve ser nulo ou se repetir.
+-- Será através dessa coluna que criaremos relações entre as tabelas.
+
+-- 7. FOREIGN KEY
+-- Uma CHAVE ESTRANGEIRA (FOREIGN KEY) é uma coluna que será relacionada com a CHAVE PRIMÁRIA
+-- de uma outra tabela.
 ```
 
-```sql
 
+## Aula 4: Criando Constraints para a Tabela dCliente
+
+```sql
+CREATE DATABASE Exercicios
+USE Exercicios
+
+-- Tabela 1: dCliente
+
+-- A tabela dCliente deve conter as seguintes colunas:
+
+-- Coluna 1: id_cliente do tipo INT          --> Chave Primária e deve ser auto incrementada
+-- Coluna 2: nome_cliente do tipo VARCHAR    --> Não aceita valores nulos
+-- Coluna 3: genero VARCHAR                  --> Não aceita valores nulos e devem ser ('M', 'F', 'O', 'PND')
+-- Coluna 4: data_nascimento DATE            --> Não aceita valores nulos  
+-- Coluna 5: cpf do tipo VARCHAR             --> Não aceita valores duplicados nem valores nulos
+
+CREATE TABLE dCLiente (
+	id_cliente INT IDENTITY(1, 1),
+	genero VARCHAR(100) NOT NULL,
+	data_nascimento DATE NOT NULL,
+	cpf VARCHAR(100) NOT NULL,
+	CONSTRAINT dcliente_id_cliente_pk PRIMARY KEY(id_cliente),
+	CONSTRAINT dcliente_genero_ck CHECK(genero IN ('M', 'F', 'O', 'PND')),
+	CONSTRAINT dcliente_cpf_un UNIQUE(cpf)
+)
+
+INSERT INTO dCliente(Nome_Cliente, Genero, Data_de_Nascimento, CPF)
+VALUES
+	('André Martins',  'M',  '12/02/1989', '839.283.190-00'),
+	('Bárbara Campos',  'F', '07/05/1992', '351.391.410-02'),
+	('Carol Freitas',  'F',  '23/04/1985', '139.274.921-12'),
+	('Diego Cardoso',   'M', '11/10/1994', '192.371.081-17'),
+	('Eduardo Pereira', 'M', '09/11/1988', '193.174.192-82'),
+	('Fabiana Silva',  'F',  '02/09/1989', '231.298.471-98'),
+	('Gustavo Barbosa', 'M', '27/06/1993', '240.174.171-76'),
+	('Helen Viana',    'F',  '11/02/1990', '193.129.183-01'),
+	('Igor Castro',    'M',  '21/08/1989', '184.148.102-29'),
+	('Juliana Pires',   'F', '13/01/1991', '416.209.192-47')
 ```
 
-```sql
 
+### Aula 5: Criando Constraints para a Tabela dGerente
+
+```sql
+-- Tabela 2: dGerente
+
+-- A tabela dGerente deve conter as seguintes colunas:
+
+-- Coluna 1: id_gerente do tipo INT            --> Chave Primária e auto incrementada
+-- Coluna 2: nome_gerente do tipo VARCHAR      --> Não aceita valores nulos
+-- Coluna 3: data_contratacao VARCHAR          --> Não aceita valores nulos
+-- Coluna 4: salario do tipo FLOAT             --> Não aceita valores nulos nem abaixo de zero
+
+CREATE TABLE dGerente(
+	id_gerente INT IDENTITY(1, 1),
+	nome_gerente VARCHAR(100) NOT NULL,
+	data_contratacao VARCHAR(100) NOT NULL,
+	salario FLOAT NOT NULL
+	CONSTRAINT dgerente_id_gerente_pk PRIMARY KEY(id_gerente),
+	CONSTRAINT dgerente_salario_ck CHECK(salario > 0)
+)
+
+INSERT INTO dGerente(Nome_Gerente, Data_Contratacao, Salario)
+VALUES
+	('Lucas Sampaio',   '21/03/2015', 6700),
+	('Mariana Padilha', '10/01/2011', 9900),
+	('Nathália Santos', '03/10/2018', 7200),
+	('Otávio Costa',    '18/04/2017', 11000)
 ```
 
-```sql
 
+### Aula 6: Criando Constraints para a Tabela fContratos
+
+```sql
+-- Tabela 3: fContratos
+
+-- A tabela fContratos deve conter as seguintes colunas:
+
+-- Coluna 1: id_contrato do tipo INT           --> Chave Primária e auto incremental
+-- Coluna 2: data_assinatura do tipo DATE      --> Valor Padrão (GETDATE) caso não seja preenchida
+-- Coluna 3: id_cliente do tipo INT            --> Chave Estrangeira
+-- Coluna 4: id_gerente do tipo INT            --> Chave Estrangeira
+-- Coluna 5: valor_contrato do tipo FLOAT      --> Não aceita valores nulos e deve ser maior que zero
+
+CREATE TABLE fContratos(
+	id_contrato INT IDENTITY(1, 1),
+	data_assinatura DATE DEFAULT GETDATE(),
+	id_cliente INT,
+	id_gerente INT,
+	valor_contrato FLOAT NOT NULL,
+	CONSTRAINT fcontratos_id_contrato_pk PRIMARY KEY(id_contrato),
+	CONTRAINT fcontratos_id_cliente_fk FOREING KEY(id_cliente) REFERENCES dCliente(id_cliente),
+	CONSTRAINT dcontratos_id_gerente_fk FOREIGN KEY(id_gerente) REFERENCES dGerente(id_gerente),
+	CONSTRAINT fcontratos_valor_contrato_ck CHECK(valor_contrato > 0)
+)
+
+INSERT INTO fContratos(Data_Assinatura, ID_Cliente, ID_Gerente, Valor_Contrato)
+VALUES
+	('12/01/2019', 8, 1, 23000),
+	('10/02/2019', 3, 2, 15500),
+	('07/03/2019', 7, 2, 6500),
+	('15/03/2019', 1, 3, 33000),
+	('21/03/2019', 5, 4, 11100),
+	('23/03/2019', 4, 2, 5500),
+	('28/03/2019', 9, 3, 55000),
+	('04/04/2019', 2, 1, 31000),
+	('05/04/2019', 10, 4, 3400),
+	('05/04/2019', 6, 2, 9200)
 ```
 
-```sql
 
+### Aula 11: Gerenciando Constraints
+
+```sql
+-- 1. Adicionar constraints
+-- 2. Renomear constraints
+-- 3. Remover constraints
+
+-- Remova a constraint PK da tabela fContratos.
+ALTER TABLE fContratos
+DROP CONSTRAINT fcontratos_id_contrato_pk
+
+-- Remova a constraint FK Cliente da tabela fContratos.
+ALTER TABLE fContratos
+DROP CONSTRAINT fcontrato_id_cliente_fk
+
+-- Adicione a constraint PK id_contrato na tabela fContratos.
+ALTER TABLE fContratos
+ADD CONSTRAINT fcontratos_id_contrato_pk PRIMARY KEY(id_contrato)
+
+-- Adicione a constraint FK id_cliente na tabela fContratos.
+ALTER TABLE fContratos
+ADD CONSTRAINT fcontratos_id_cliente_fk FOREIGN KEY(id_cliente) REFERENCES dCliente(id_cliente)
 ```
 
-```sql
 
+### Aula 13: Resolução Exercício 1
+-  Você está responsável por criar um Banco de Dados com algumas tabelas que vão armazenar informações associadas ao aluguel de carros de uma locadora.
+- a) O primeiro passo é criar um banco de dados chamado AlugaFacil.
+
+```sql
+CREATE DATABASE AlugaFacil
+USE AlugaFacil
 ```
 
-```sql
+- b) O seu banco de dados deve conter 3 tabelas e a descrição de cada uma delas é mostrada abaixo. Obs: você identificará as restrições das tabelas a partir de suas descrições.
+- Tabela 1: Cliente
+	- id_cliente (deve ser a chave primária da tabela, além de ser autoincrementada de forma automática)
+	- nome_cliente (não aceita valores nulos)
+	- cnh (não aceita valores nulos e duplicados)
+	- cartao (não aceita valores nulos)
 
+```sql
+CREATE TABLE Cliente(
+	id_cliente INT IDENTITY(1, 1),
+	nome_cliente VARCHAR(100) NOT NULL,
+	cnh VARCHAR(100) NOT NULL,
+	cartao VARCHAR(100) NOT NULL,
+	CONSTRAINT cliente_id_cliente_pk PRIMARY KEY(id_cliente),
+	CONSTRAINT cliente_cnh_un UNIQUE(cnh)
+)
 ```
 
-```sql
+- Tabela 2: Carro
+	- id_carro (deve ser a chave primária da tabela, além de ser autoincrementada de forma automática)
+	- placa (não aceita valores nulos e duplicados)
+	- modelo (não aceita valores nulos)
+	- tipo (não aceita valores nulos e os tipos de carros cadastrados devem ser: Hatch, Sedan, SUV)
 
+```sql
+CREATE TABLE Carro(
+	id_carro INT IDENTITTY(1, 1),
+	placa VARCHAR(100) NOT NULL,
+	modelo VARCHAR(100) NOT NULL,
+	tipo VARCHAR(100) NOT NULL,
+	CONSTRAINT carro_id_carro_pk PRIMARY KEY(id_carro),
+	CONSTRAINT carro_placa_un UNIQUE(placa),
+	CONSTRAINT carro_tipo_ck CHECK(tipo IN ('Hatch', 'Sedan', 'SUV'))
+)
+```
+
+- Tabela 3: Locacoes
+	- id_locacao (deve ser a chave primária da tabela, além de ser autoincrementada de forma automática)
+	- data_locacao (não aceita valores nulos)
+	- data_devolucao (não aceita valores nulos)
+	- id_carro (não aceita valores nulos e é uma chave estrangeira)
+	- id_cliente (não aceita valores nulos e é uma chave estrangeira)
+
+```sql
+CREATE TABLE Locacoes(
+	id_locacao INT IDENTITY(1, 1),
+	data_locacao VARCHAR(100) NOT NULL,
+	data_devolucao VARCHAR(100) NOT NULL,
+	id_carro NOT NULL,
+	id_cliente NOT NULL,
+	CONSTRAINT locacoes_id_locacao_pk PRIMARY KEY(locacoes),
+	CONSTRAINT locacoes_id_carro_fk FOREIGN KEY(id_carro) REFERENCES Carro(id_carro),
+	CONSTRAINT locacoes_id_cliente_fk FOREIGN KEY(id_cliente) REFERENCES Cliente(id_cliente)
+)
+```
+
+
+### Aula 14: Resolução Exercício 2
+- Tente violar as constraints criadas para cada tabela. Este exercício é livre. Obs: Para fazer o exercício de violação de constraints basta utilizar o comando INSERT INTO para adicionar valores nas tabelas que não respeitem as restrições (constraints) estabelecidas na criação das tabelas. Ao final, exclua o banco de dados criado.
+
+```sql
+INSERT INTO Carro(placa, modelo, tipo)
+VALUES
+	('ABC-123', 'Hyundai HB20', 'Sedan')
+	('ABC-123', 'Fiat Argo', 'Hatch') -- duplicando a placa. Vai conflitar.
+	('XZ-123', 'Citroen Cactus', 'Esportivo') -- Check do tipo. Vai conflitar porque é diferente do check.
 ```
 
 ```sql
