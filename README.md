@@ -5504,32 +5504,193 @@ FROM vwNovosClientes
 
 
 -----------
-##
+## Módulo 19: Regex - Regular Expressions
 
-### 
+### Aula 3: Um pouco mais sobre COLLATE
 
 ```sql
+-- O que é? O COLLATION nos permite configurar se teremos diferenciação entre maiúsculas e minúsculas, ou entre palavras acentuadas.
 
+-- O COLLATION pode ser definido em níveis diferentes no SQL Server. a nível SQL Server, a nível de banco de dados e a nível de tabelas/colunas.
+
+-- 1. A nível SQL Server
+-- O COLLATION padrão é Latin1_General_CI_AS
+-- Para descobrir o COLLATION configurado:
+
+SELECT SERVERPROPERTY('collation')
+
+-- 2. A nível de Banco de Dados
+-- Herdam o COLLATION do SQL Server. Podemos especificar na criação do Banco de Dados.
+
+CREATE DATABASE BD_Collation
+COLLATE Latin'_General_CS_AS
+
+-- Podemos alterar o COLLATE após criar o banco de dados.
+
+ALTER DATABASE BD_Collation COLLATE Latin1_General_CI_AS
+
+-- Saber o COLLATION de um banco de dados específico.
+
+SELECT DATABASEPROPERTYEX('BD_Collation', 'collation')
+
+-- 3. A nível de Coluna/Tabela
+-- Herda o COLLATION do banco de dados.
+-- Criando uma coluna com um COLLATION diferente.
+
+CREATE TABLE Nomes(
+	ID INT,
+	Nome VARCHAR(100) COLLATE Latin1_General_CS_AS
+)
+
+-- Podemos ver o COLLATION de cada coluna.
+
+sp_help Nomes
 ```
 
-```sql
 
+### Aula 4: COLLATE - Exemplo
+
+```sql
+CREATE DATABASE bd_Collation
+COLLATE Latin1_General_CI_AS
+
+CREATE TABLE Tabela(
+	ID INT,
+	Nome VARCHAR(100) COLLATE Latin1_General_CS_AS
+)
+
+INSERT INTO Tabela(ID, Nome)
+VALUES
+	(1, 'Matheus'), (2, 'Marcela'), (3, 'marcos), (4, 'MAuricio'), (5, 'Marta'), (6, 'Miranda'), (7, 'Melissa'), (8, 'Lucas'), (9, 'luisa'), (10, 'Pedro')
+
+SELECT
+	ID,
+	Nome
+FROM Tabela
+WHERE Nome = 'marcela' -- não mostra nada pios é case sensitive
+
+SELECT
+	ID,
+	Nome
+FROM Tabela
+WHERE Nome COLLATE Latin1_General_CI_AS = 'marcela' -- se tornou case insensitive
 ```
 
-```sql
 
+### Aula 5: LIKE - Case sensitive
+
+```sql
+CREATE TABLE Tabela(
+	ID INT,
+	Nome VARCHAR(100) COLLATE Latin1_General_CS_AS
+)
+
+INSERT INTO Tabela(ID, Nome)
+VALUES
+	(1, 'Matheus'), (2, 'Marcela'), (3, 'marcos), (4, 'MAuricio'), (5, 'Marta'), (6, 'Miranda'), (7, 'Melissa'), (8, 'Lucas'), (9, 'luisa'), (10, 'Pedro')
+
+-- LIKE padrão como aprendemos até agora.
+SELECT *
+FROM Names
+WHERE Nome LIKE 'mar%'
+
+-- Retorna as linhas onde a primeira letra seja 'm', a segunda seja 'a' e a terceira seja 'r'.
+SELECT *
+FROM Names
+WHERE Nome LIKE '[m][a][r]%'
+
+-- Retorna as linhas onde a primeira letra seja 'M', a segunda seja 'a' e a terceira seja 'r'.
+SELECT *
+FROM Names
+WHERE Nome LIKE '[M][a][r]%'
+
+-- Retorna as linhas onde a primeira letra seja 'M' ou 'm', e a segunda seja 'A' ou 'a'.
+SELECT *
+FROM Names
+WHERE Nome LIKE '[Mm][Aa]%'
 ```
 
-```sql
 
+### Aula 6: LIKE - Filtrando os primeiros caracteres mais Case sensitive
+
+```sql
+USE BD_Collation
+CREATE TABLE Textos(
+	ID INT,
+	Texto VARCHAR(100) COLLATE Latin1_General_CS_AS
+)
+
+INSERT INTO Textos(ID, Texto)
+VALUES
+	(1, 'Marcos'), (2, 'Excel'), (3, 'leandro'), (4, 'K'), (5, 'X7'), (6, '19'), (7, '#M'), (8, '@9'), (9,'M'), ('0,'RT')
+
+-- Retornando nomes que começam com a letra 'M', 'E' ou 'K'
+SELECT *
+FROM Textos
+WHERE Tecto LIKE '[MEK]%'
+
+-- Retornando nomes que possuem apenas 1 caracter
+SELECT *
+FROM Textos
+WHERE Tecto LIKE '[A-z]'
+
+-- Retornando nomes que possuem apenas 2 caracteres
+SELECT *
+FROM Textos
+WHERE Tecto LIKE '[A-z][A-z]'
+
+-- Retornando nomes que possuem apenas 2 caracteres: o primeiro uma letra e o segundo um número
+SELECT *
+FROM Textos
+WHERE Tecto LIKE '[A-z][0-9]'
 ```
 
-```sql
 
+### Aula 7: LIKE - Filtrando mais personalizado e caractere curinga
+
+```sql
+CREATE TABLE Tabela(
+	ID INT,
+	Nome VARCHAR(100) COLLATE Latin1_General_CS_AS
+)
+
+INSERT INTO Tabela(ID, Nome)
+VALUES
+	(1, 'Matheus'), (2, 'Marcela'), (3, 'marcos), (4, 'MAuricio'), (5, 'Marta'), (6, 'Miranda'), (7, 'Melissa'), (8, 'Lucas'), (9, 'luisa'), (10, 'Pedro')
+
+-- Retorna os nomes que:
+-- 1. Começam com a letra 'M' ou 'm'
+-- 2. O segundo caractere pode ser qualuer coisa ('_' é um coringa)
+-- 3. O terceiro caractere pode ser a letra 'R' ou a letra 'r'
+-- 4. Possui uma quantidade qualquer de caracteres depois do terceiro (por conta do %)
+
+SELECT *
+FROM Nomes
+WHERE Nome LIKE '[Mm]_[Rr]%'
 ```
 
-```sql
 
+### Aula 8: LIKE - Utilizando o operador de negação
+
+```sql
+CREATE TABLE Tabela(
+	ID INT,
+	Nome VARCHAR(100) COLLATE Latin1_General_CS_AS
+)
+
+INSERT INTO Tabela(ID, Nome)
+VALUES
+	(1, 'Matheus'), (2, 'Marcela'), (3, 'marcos), (4, 'MAuricio'), (5, 'Marta'), (6, 'Miranda'), (7, 'Melissa'), (8, 'Lucas'), (9, 'luisa'), (10, 'Pedro')
+
+-- Retorna nomes que não começa com as letras 'L' ou 'l'
+SELECT *
+FROM Nomes
+WHERE Nome LIKE '[^Ll]%'
+
+-- Retorna nomes que começam com qualquer caractere (caractere curinga) e a segunda letra não é um 'E' ou 'e'
+SELECT *
+FROM Nomes
+WHERE Nome LIKE '_[^Ee]%'
 ```
 
 ```sql
