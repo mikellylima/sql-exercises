@@ -6006,33 +6006,182 @@ VALUES
 	('XZ-123', 'Citroen Cactus', 'Esportivo') -- Check do tipo. Vai conflitar porque é diferente do check.
 ```
 
-```sql
 
-```
+-------------
+## Módulo 21: Sequences
 
-```sql
-
-```
+### Aula 2: O que é uma Sequence
 
 ```sql
+-- O que é?
+-- Uma sequência (Sequence) é um objeto que utilizamos para criação de números sequenciais automáticos. São usados especialmente para gerar valores sequenciais únicos para as chaves primárias das tabelas.
 
+-- Dessa forma, não precisamos ficar preenchendo a sequência de ids manualmente (como fizemos até então), podemos gerar automaticamente por meio de uma sequence.
+
+/* Sintaxe
+
+CREATE SEQUENCE nome_sequencia
+AS tipo
+START WITH n
+INCREMENT BY n
+MAXVALUE n | NO MAXVALUE
+MINVALUE n | NO MINVALUE
+CYCLE | NO CYCLE;       -- quando atinge o valor máximo, pode ou não voltar do começo
+
+*/
 ```
+
+
+### Aula 3: Como criar uma Sequence
+- Crie uma sequência para o id_cliente
 
 ```sql
+CREATE SEQUENCE clientes_seq
+AS INT
+START WITH 1
+INCREMENT BY 1
+MAXVALUE 9999999
+NO CYCLE
 
+-- Próximo valor da sequência
+
+SELECT NEXT VALUE FOR clientes_seq
+
+-- Excluir uma sequence
+DROP SEQUENCE clientes_seq
 ```
+
+
+### Aula 4: Como utilizar uma sequence
+- Crie uma sequência para o id_projeto
 
 ```sql
+CREATE SEQUENCE projetos_seq
+AS INT
+START WITH 1
+INCREMENT BY 1
+NO MAXVALUE
+NO CYCLE
 
+CREATE TABLE dProjetos(
+	id_projeto INT,
+	nome_projeto VARCHAR(100) NOT NULL,
+	CONSTRAINT dprojetos_id_projeto_pk PRIMARY KEY(id_projeto)
+)
+
+INSERT INTO dProjeto(id_projeto, nome_projeto)
+VALUES
+	(NEXT VALUE FOR projetos_seq, 'Planejamento Estratégico'),
+	(NEXT VALUE FOR projetos_seq, 'Desenvolvimento de App'),
+	(NEXT VALUE FOR projetos_seq, 'Plano de Negócios'),
+	(NEXT VALUE FOR projetos_seq, 'Visualização 3D')
 ```
+
+
+### Aula 6: Resolução Exercícios 1, 2 e 3
+- Crie o Banco de Dados AlugaFacil, onde serão criadas as sequences e tabelas dos exercícios.
 
 ```sql
-
+CREATE DATABASE AlufaFacil
+USE AlugaFacil
 ```
+
+- 1. Vamos criar Sequences que serão utilizadas nas tabelas: Carro, Cliente e Locacoes. Essas sequences serão chamadas de: cliente_seq, carro_seq e locaçoes_seq. Todas essas sequences devem começar pelo número 1, incrementar de 1 em 1 e não terem valor máximo.
 
 ```sql
+CREATE SEQUENCE cliente_seq
+AS INT
+START WITH 1
+INCREMENT BY 1
+NO MAXVALUE
 
+CREATE SEQUENCE carro_seq
+AS INT
+START WITH 1
+INCREMENT BY 1
+NO MAXVALUE
+
+CREATE SEQUENCE locacoes_seq
+AS INT
+START WITH 1
+INCREMENT BY 1
+NO MAXVALUE
 ```
+
+- 2. Utilize as sequences nas 3 tabelas: Carro, Cliente e Locacoes. Você deve excluir as tabelas existentes e recriá-las. Lembre-se que não é necessário utilizar a constraint IDENTITY nas colunas de chave primária uma vez que nelas serão usadas as Sequences.
+- Tabela 1: Cliente
+	- id_cliente (deve ser chave primária)
+	- nome_cliente (não pode aceitar valores nulos)
+	- cnh (não pode aceitar valores nulos e duplicados)
+	- cartao (não pode aceitar valores nulos)
+
+```sql
+CREATE TABLE Cliente(
+	id_cliente INT,
+	nome_cliente VARCHAR(100) NOT NULL,
+	cnh VARCHAR(100) NOT NULL,
+	cartao VARCHAR(100) NOT NULL,
+	CONSTRAINT cliente_id_cliente_pk PRIMARY KEY(id_cliente),
+	CONSTRATIN cliente_cnh_un UNIQUE(cnh)
+)
+```
+
+- Tabela 2: Carro
+	- id_carro (deve ser a chave primária)
+	- placa (não pode aceitar valores nulos e duplicados)
+	- modelo (não pode aceitar valores nulos)
+	- tipo (não pode aceitar valores nulos. Os tipos de carros cadastrados devem ser: Hatch, Sedan, SUV)
+
+```sql
+CREATE TABLE Carro(
+	id_carro INT,
+	placa VARCHAR(100) NOT NULL,
+	modelo VARCHAR(100) NOT NULL,
+	tipo VARCHAR(100) NOT NULL,
+	CONSTRAINT carro_id_carro_pk PRIMARY KEY(id_carro),
+	CONSTRAINT carro_placa_un UNIQUE(placa),
+	CONSTRAINT carro_tipo_ck CHECK(tipo IN ('Hatch', 'Sedan', SUV))
+)
+```
+
+- Tabela 3: Locacoes
+	- id_locacao (deve ser a chave primária)
+	- data_locacao (não pode aceitar valores nulos)
+	- data_devolucao (não pode aceitar valores nulos)
+	- id_carro (chave estrangeira)
+	- id_cliente (chave estrangeira)
+
+```sql
+CREATE TABLE Locacoes(
+	id_locacao INT,
+	data_locacao VARCHAR(100) NOT NULL,
+	data_devolucao VARCHAR(100) NOT NULL,
+	id_carro INT,
+	id_cliente INT,
+	CONSTRAINT locacoes_id_locacao_pk PRIMARY KEY(id_locacao),
+	CONSTRAINT locacoes_id_carro_fk FOREIGN KEY(id_carro) REFERENCES Carro(id_carro),
+	CONSTRAINT locacoes_id_cliente_fk FOREIGN KEY(id_cliente) REFERENCES Cliente(id_cliente)
+)
+
+INSERT INTO Cliente(id_cliente, nome_cliente, cnh, cartao)
+VALUES
+	(NEXT VALUE FOR cliente_seq, 'Ana', '111111', '111111')
+	(NEXT VALUE FOR cliente_seq, 'Bruno', '222222', '222222')
+```
+
+- 3. Exclua as sequences criadas.
+
+```sql
+DROP SEQUENCE cliente_seq
+DROP SEQUENCE carro_seq
+DROP SEQUENCE locacoes_seq
+```
+
+
+-------------
+## Módulo 22: Transactions
+
+### 
 
 ```sql
 
