@@ -6181,22 +6181,89 @@ DROP SEQUENCE locacoes_seq
 -------------
 ## Módulo 22: Transactions
 
-### 
+### Aula 2: O que é uma Transaction
 
 ```sql
+-- 1. O que é uma transaction?
+-- Uma transaction é uma ação realizada dentro do banco de dados. Essa ação pode ser uma: atualização, inserção ou exclusão de dados do banco. Precisamos de transações quando estamos alterando o banco de dados de alguma forma, seja inserindo, atualizando ou excluindo dados.
 
+-- Normalmente, não temos muito "controle" sobre transações, a menos que a gente explicite no nosso código que queremos fazer isso. Assim, a ideia de uma transação é agrupar um conjunto de instruções a serem executadas no banco de dados, e ter a flexibilidade de:
+
+-- a. Se algo der errado, desfazer aquela transação
+-- b. Se tudo der certo, salvar aquela transação
+
+-- O que podemos fazer com uma transaction?
+
+-- BEGIN TRANSACTION		: iniciá-la
+-- ROLLBACK TRANSACTION		: desfazê-la
+-- COMMIT			: salvá-la
 ```
 
-```sql
 
+### Aula 3: Iniciando uma Transação, Commit e Rollback
+- Iniciando uma transação com COMMIT:
+
+```sql
+SELECT * FROM cliente_aux
+
+BEGIN TRANSACTION
+INSERT INTO cliente_aux(nome_cliente, genero, data_de_nascimento, cpf)
+VALUES
+	('Maria Julia', 'F', '30/04/1995', '000.000.000-00')
+
+ROLLBACK TRANSACTION -- Desfez a transação anterior
+
+-- Garantir que não é possível fazer um rollback
+INSERT INTO cliente_aux(nome_cliente, genero, data_de_nascimento, cpf)
+VALUES
+	('Maria Julia', 'F', '30/04/1995', '000.000.000-00')
+
+COMMIT TRANSACTION -- Não consegue desfazer
+
+BEGIN TRANSACTION
+UPDATE cliente_aux
+SET cpf = '999.999.999-99'
+WHERE id_cliente = 1
+
+ROLLBACK TRANSACTION -- Desfez a transação anterior
 ```
 
-```sql
 
+### Aula 4: Criando transações nomeadas
+
+```sql
+BEGIN TRANSACTION T1
+INSERT INTO cliente_aux(nome_cliente, genero, data_de_nascimento, cpf) VALUES
+	('Naldo Reis', 'M', '10/02/1992', '412.889.311-90')
+
+-- Commitando uma transação
+COMMT TRANSACTION T1
 ```
 
-```sql
 
+### Aula 5: Commit e Rollback condicionais
+- Você deve inserir a cliente Ruth Campos no banco de dados. Se esse nome já existir, desfaça a transação. Se não existir, salve a transação.
+
+```sql
+DECLARE @contador INT
+
+BEGIN TRANSACTION T1
+INSERT INTO cliente_aux(nome_cliente, genero, data_de_nascimento, cpf)
+VALUES
+	('Ruth Campos', 'F', '23/03/1992', '111.111.111-11')
+
+SELECT @contador = COUNT(*) FROM cliente_aux WHERE nome_cliente = 'Ruth Campos'
+
+IF @contador = 1
+	BEGIN
+		COMMIT TRANSACTION T1
+		PRINT 'Ruth Campos cadastrada com sucesso.'
+	END
+ELSE
+	BEGIN
+		ROLLBACK TRANSACTION T1
+		'Ruth Campos já foi cadastrada na tabela. Insert abortado!'
+	END
 ```
 
 ```sql
