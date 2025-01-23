@@ -6266,45 +6266,284 @@ ELSE
 	END
 ```
 
+
+### Aula 6 de 9: Transações com tratamento de erros (Try e Catch)
+
 ```sql
+BEGIN TRY
+	BEGIN TRANSACTION T1
+	
+		UPDATE cliente_aux
+		SET data_de_nascimento = '15 de março de 1992'
+		WHERE id_cliente = 4
+	
+	COMMIT TRANSACTION T1 -- Deu um erro, porque está tentando colocar um texto no campo de data.
+	PRINT 'Data atualizada com sucesso'
+END TRY
+BEGIN CATCH
+	ROLLBACK TRANSACTION T1
+	PRINT 'Data cadastrada inválida'
+END CATCH
+```
+
+### Aula 7: TRANCOUNT e Transações Aninhadas
+
+```sql
+BEGIN TRANSACTION T1
+BEGIN TRANSACTION T2
+
+PRINT @@TRANCOUNT -- Conta as transações abertas.
+
+-- Transações aninhadas
+BEGIN TRANSACTION T1
+	PRINT @@TRANCOUNT
+	BEGIN TRANSACTION T2
+		PRINT @@TRANCOUNT
+	COMMIT TRANSACTION T2
+	PRINT @@TRANCOUNT
+COMMIT TRANSACTION T1
+PRINT @@TRANCOUNT
+```
+
+
+### Aula 9: Resolução Exercícios 1 e 2
+- 1. Crie uma tabela chamada Carro com os dados abaixo. Obs: não se preocupe com constraints, pode criar uma tabela simples.
+![image](https://github.com/user-attachments/assets/3fca69d0-887e-4446-ab22-cb401d7cf5bb)
+
+```sql
+CREATE DATABASE AlugaFacil
+USE AlugaFacil
+
+CREATE TABLE Carro(
+	id_carro INT,
+	placa VARCHAR(100) NOT NULL,
+	modelo VARCHAR(100) NOT NULL,
+	tipo VARCHAR(100) NOT NULL
+)
+
+INSERT INTO Carro(id_carro, placa, modelo, tipo)
+VALUES
+	(1, 'DAS-1412', 'Hyundai HB20', 'Hatch')
+	(2, 'JHG-3902', 'Fiat Cronos', 'Sedan')
+	(3, 'IPW-9018', 'Citroen C4 Cactus', 'SUV')
+	(4, 'JKR-8891', 'Nissa Kicks', 'SUV')
+	(5, 'TRF-5904', 'Chevrolet Onix', 'Sedan')
+```
+
+- 2. Execute as seguintes transações no banco de dados, sempre na tabela Carro. Lembre-se de dar um COMMIT para efetivar cada uma das transações.
+- a) Inserir uma nova linha com os seguintes valores: id_carro = 6, placa = CDR-0090, modelo = Fiat Argo e tipo = Hatch.
+
+```sql
+BEGIN TRANSACTION T1
+	INSERT INTO Carro(id_carro, placa, modelo, tipo)
+	VALUES
+		(6, 'CDR-0090', 'Fiat Argo', 'Hatch')
+COMMIT TRANSACTION T1
+```
+
+- b) Atualizar o tipo do carro de id = 1 de Hatch para Sedan.
+
+```sql
+BEGIN TRANSACTION T2
+	UPDATE Carro
+	SET tipo = 'Sedan'
+	WHERE id_carro = 1
+COMMIT TRANSACTION T2
+```
+
+- c) Deletar a linha referente ao carro de id = 6.
+
+```sql
+BEGIN TRANSACTION T3
+	DELETE FROM Carro
+	WHERE id_carro = 6
+COMMIT TRANSACTION T3
+```
+
+
+-------------
+## Módulo 23: Functions
+
+### Aula 2 de 11: O que é uma Function
+
+```sql
+-- 1. O que é uma Function?
+
+-- Uma function é um conjunto de comandos que executam ações e retorna um valor escalar. As functions ajudam a simplificar um código. Por exemplo, se você tem um cálculo complexo que aparece diversas vezes no seu código, em vez de repetir várias vezes aquela série de comandos, você pode simplesmente criar uma função e reaproveitá-la sempre que precisar.
+
+-- O próprio SQL tem diversas funções prontas e até agora, já vimos vários exemplos de funções deste tipo, como funções de data, texto, e assim vai.
+
+
+-- Podemos visualizar as funções do sistema na pasta Programação > Funções > Funções do Sistema
+```
+
+
+### Aula 3: Como criar e utilizar uma Function
+- Imagine que você queira fazer uma formatação diferenciada na coluna data_de_nascimento, utilizando a função DATENAME.
+
+```sql
+-- Criando uma função para formatação de data usando a DATENAME
+
+CREATE FUNCTION fnDataCompleta(@data AS DATE)
+RETURNS VARCHAR(MAX)
+AS
+BEGIN
+
+	RETURN DATENAME(DW, @Data) + ', ' +
+		DATENAME(D, @Data) + ' de ' +
+		DATENAME(M, @Data) + ' de ' +
+		DATENAME(YY, @Data)
+
+END
+
+SELECT
+	nome_cliente,
+	data_de_nascimento,
+	[dbo].[fnDataCompleta](data_de_nascimento)
+FROM
+	dCliente
+```
+
+
+### Aula 4: Adicionando uma estrutura condicional em nossa Function
+
+```sql
+-- Excluir a function
+DROP FUNCTION fnDataCompleta
+
+-- Concatenar a data com o semestre
+
+CREATE OR ALTER FUNCTION fnDataCompleta(@data AS DATE)
+RETURNS VARCHAR(MAX)
+AS
+BEGIN
+
+	RETURN DATENAME(DW, @Data) + ', ' +
+		DATENAME(D, @Data) + ' de ' +
+		DATENAME(M, @Data) + ' de ' +
+		DATENAME(YY, @Data) + ' - ' +
+		CASE
+			WHEN MONTH(@Data) <= 6 THEN
+				'(1º Semestre)'
+			ELSE
+				'(2º Semestre)'
+		END
+END
+```
+
+
+### Aula 5 e 6: Criando funções complexas
+- Crie uma função para retornar o primeiro nome de cada gerente
+
+```sql
+SELECT
+	nome_gerente,
+	dbo.fnPrimeiroNome(nome_gerente) AS primeiro_nome
+FROM dGerente
+
+CREATE OR ALTER FUNCTION fnPrimeiroNome(@nomeCompleto AS VARCHAR(MAX))
+RETURNS VARCHAR(MAX)
+AS
+BEGIN
+
+	DECLARE @posicaoEspaco AS INT
+	DECLARE @resposta AS VARCHAR(MAX)
+
+	SET @posicaoEspaco = CHARINDEX(' ', @nomeCompleto)
+
+	IF @posicaoEspaco = 0
+		SET @resposta = @nomeCompleto
+	ELSE
+		SET @resposta = LEFT(@nomeCompleto, CHARINDEX(' ', @nomeCompleto) - 1)
+	RETURN @resposta
+END 
+```
+
+
+### Aula 8: Resolução Exercício 1
+- Crie uma Function que calcule o tempo (em anos) entre duas datas. Essa function deve receber dois argumentos: data_inicial e data_final. Caso a data_final não seja informada, a function deve automaticamente considerar a data atual do sistema. Essa function será usada para calcular o tempo de casa de cada funcionário. Obs: a função DATEDIFF não é suficiente para resolver este problema.
+
+```sql
+CREATE OR ALTER FUNCTION CalculaDiferencaDatas(@data_inicial DATE, @data_final DATE)
+RETURNS INT
+AS
+BEGIN
+	IF @data_final IS NULL SET @data_final = GETDATE()
+
+	RETURN DATEDIFF(YEAR, @dataInicial, @dataFinal)
+END
+
+SELECT
+	FirstName,
+	HireDate,
+	EndDate,
+	dbo.CalculaDiferencaDatas(HireDate, EndDate)
+FROM DimEmployee
+```
+
+
+### Aula 9: Resolução Exercício 2
+- Crie uma function que calcula a bonificação de cada funcionário (5% a mais em relação ao BaseRate). Porém, tome cuidado! Nem todos os funcionários deverão receber bônus...
+
+```sql
+CREATE OR ALTER FUNCTION CalculaBonus(@salario FLOAT, @status VARCHAR(100), @percentual FLOAT)
+RETURNS FLOAT
+AS
+BEGIN
+	DECLARE @bonus AS FLOAT
+
+	IF @status = 'Current'
+		SET @bonus = @salario * @percentual
+	ELSE
+		SET @bonus = 0
+
+	RETURN @bonus
+END
+
+SELECT
+	FirstName,
+	BaseRate,
+	Status,
+	dbo.CalculaBonus(BaseRate, Status, 0.5)
 
 ```
 
-```sql
 
-```
-
-```sql
-
-```
+### Aula 10: Resolução Exercício 3
+- Crie uma Function que retorna uma tabela. Esta function deve receber como parâmetro o gênero do cliente e retornar todos os clientes que são do gênero informado na function. Observe que esta function será utilizada particularmente com a tabela DimCustomer
 
 ```sql
+CREATE OR ALTER FUNCTION select_genero(@genero VARCHAR(100))
+RETURNS TABLE
+AS
+RETURN (SELECT * FROM DimCustomer WHERE gender = @genero)
 
+SELECT * FROM dbo.select_genero('M')
 ```
+
+
+### Aula 11: Resolução Exercício 4
+- Crie uma Function que retorna uma tabela resumo com o total de produtos por cores. Sua function deve receber 1 argumento, onde será possível especificar de qual marca você deseja o resumo.
 
 ```sql
+CREATE OR ALTER FUNCTION analisa_cores(@marca VARCHAR(100))
+RETURNS TABLE
+AS
+RETURN (SELECT
+		ColorName,
+		COUNT(*) Total
+	FROM DimProduct
+	WHERE BrandName = @marca
+	GROUP BY ColorName)
 
+SELECT * FROM dbo.analisa_cores('Contoso')
 ```
 
-```sql
 
-```
+--------------
+##  Módulo 24: Procedures
 
-```sql
-
-```
-
-```sql
-
-```
-
-```sql
-
-```
-
-```sql
-
-```
+### 
 
 ```sql
 
