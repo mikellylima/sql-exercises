@@ -6543,6 +6543,323 @@ SELECT * FROM dbo.analisa_cores('Contoso')
 --------------
 ##  Módulo 24: Procedures
 
+### Aula 2: O que é uma Procedure
+
+```sql
+-- 1. O que é uma Procedure
+-- É um bloco de código que possui um nome e pode ser armazenado no banco de dados.
+-- Ele pode incluir uma série de comandos SQL para executar alguma tarefa.
+
+
+-- 2. Por que usar uma Procedure
+-- Procedures são usadas para fazer tarefas repetitivas que não são possíveis em queries do SQL ou que dariam muito trabalho.
+-- Pode incluir estruturas de controle e comandos.
+
+-- 3. Tipos de Procedure
+-- Uma Procedure pode ou não aceitar parãmetros de entrada
+
+-- Procedures Com Parâmetros
+-- Procedures Sem Parâmetros
+```
+
+
+### Aula 3: Criando uma Procedure Sem Parâmetros
+- - Exemplo 1. Crie uma Procedure que executa um SELECT simples (sem parâmetros).
+
+```sql
+CREATE PROCEDURE prOrdenaGerentes
+AS
+BEGIN
+
+	SELECT
+		id_gerente,
+		nome_gerente,
+		salario
+	FROM dGerente
+	ORDER BY salario DESC
+
+END
+
+EXECUTE prOrdenaGerentes
+```
+
+
+### Aula 4 de 15: Criando uma Procedure Com 1 Parâmetro
+- Exemplo 2. Crie uma Procedure que executa um SELECT que recebe um parâmetro de entrada para filtrar a tabela dClientes de acordo com o gênero informado.
+
+```sql
+CREATE OR ALTER PROCEDURE prListaClientes(@gen VARCHAR(MAX))
+AS
+BEGIN
+	SELECT
+		nome_cliente,
+		genero,
+		data_de_nascimento,
+		cpf
+	FROM dCliente
+	WHERE genero = @gen
+END
+
+EXECUTE prListaClientes 'M'
+```
+
+
+### Aula 5: Criando uma Procedure com mais de 1 parâmetro
+- Exemplo 3. Crie uma Procedure que executa um SELECT que recebe um parâmetro de entrada para filtrar a tabela dClientes de acordo com o gênero informado e ano de nascimento informado.
+
+```sql
+CREATE OR ALTER PROCEDURE prListaClientes(@gen VARCHAR(MAX), @ano INT)
+AS
+BEGIN
+	SELECT
+		nome_cliente,
+		genero,
+		data_de_nascimento,
+		cpf
+	FROM dCliente
+	WHERE genero = @gen AND YEAR(data_de_nascimento) = @ano
+END
+
+EXECUTE prListaClientes 'M', 1989
+```
+
+
+### Aula 6: Criando uma Procedure com Parâmetro Default
+- Exemplo 3. Crie uma Procedure que executa um SELECT que recebe um parâmetro de entrada para filtrar a tabela dClientes de acordo com o gênero informado e ano de nascimento informado.
+
+```sql
+CREATE OR ALTER PROCEDURE prListaClientes(@gen VARCHAR(MAX) = 'M', @ano INT)
+AS
+BEGIN
+	SELECT
+		nome_cliente,
+		genero,
+		data_de_nascimento,
+		cpf
+	FROM dCliente
+	WHERE genero = @gen AND YEAR(data_de_nascimento) = @ano
+END
+
+EXECUTE prListaClientes @ano = 1989
+```
+
+
+### Aula 8: Criando uma Procedure mais Complexa para Cadastro de Contratos - Solução
+- Exemplo: Crie uma procedure para cadastrar uma nova assinatura de um contrato na tabela fContratos (com parâmetros).
+
+```sql
+-- Gerente: Lucas Sampaio
+-- Cliente: Gustavo Barbosa
+-- Valor do Contrato: 5000
+
+
+-- 1º Passo: Definir as variáveis a serem utilizadas.
+-- 2º Passo: Armazenar o valor de id_gerente de acordo com o gerente associado
+-- 3º Passo: Armazenar o valor de id_cliente de acordo com o nome do cliente
+-- 4º Passo: Armazenar a data da assinatura como sendo a data atual do sistema
+-- 5º Passo: Utilizar o INSERT INTO para inserir os dados na tabela fContratos
+
+CREATE OR ALTER PROCEDURE prRegistraContrato(@gerente VARCHAR(MAX), @cliente VARCHAR(MAX), @valor FLOAT)
+AS
+BEGIN
+
+	DECLARE @vIdGerente INT, @vIdCliente INT
+	SELECT
+		@vIdGerente = id_gerente
+	FROM dGerente
+	WHERE nome_gerente = @gerente
+
+	SELEC
+		@vIdCliente = id_cliente
+	FROM dCliente
+	WHERE nome_cliente = @cliente
+
+	INSERT INTO fContratos(data_assinatura, id_cliente, id_gerente, valor_contrato)
+	VALUES
+		(GETDATE(), @vIdCliente, @vIdGerente, @valor)
+
+	PRINT 'Contrato registrado com sucesso!'
+END
+
+EXECUTE prRegistraContrato @gerente = 'Lucas Sampario', @cliente = 'Gustavo Barbosa', @valor = 5000
+```
+
+
+### Aula 9: Excluindo uma Procedure
+
+```sql
+DROP PROCEDURE prRegistraContrato
+```
+
+
+### Aula 10: Functions vs Procedures
+
+```sql
+/*
+
+Temos abaixo uma lista de principais diferenças entre Functions e Procedures.
+
+Diferença 1.
+- Procedures são usadas para executar um processo, uma sequência de comandos e blocos SQL.
+- Functions são usadas para fazer cálculos
+
+Diferença 2.
+- Procedures não podem ser 'chamadas' dentro da cláusula SELECT
+- Functions podem ser 'chamadas' dentro da cláusula SELECT (desde que não contenham comandos SELECT)
+
+Diferença 3.
+- Procedures não precisam retornar nenhum valor
+- Functions precisam retornar algum valor 
+
+*/
+```
+
+
+### Aula 12: Resolução Exercício 1
+- Crie uma Procedure que resume o total de produtos por nome da categoria. Essa Procedure deve solicitar ao usuário qual marca deve ser considerada na análise.
+
+```sql
+CREATE OR ALTER PROCEDURE analisa_produtos(@marca VARCHAR(100))
+AS
+BEGIN
+
+	SELECT
+		c.ProductCategoryName,
+		COUNT(*)
+	FROM DimProduct p
+	INNER JOIN DimProductSubcategory s ON p.ProductSubcategoryKey = s.ProsuctSubcategoryKey
+		INNER JOIN DimProductCategory c ON s.ProductCategoryKey = c.ProductCategoryKey
+	WHERE p.BrandName = @marca
+	GROUP BY c.ProductCategoryName
+
+END
+
+EXECUTE analisa_produtos @marca = 'Contoso'
+```
+
+
+### Aula 13: Resolução Exercício 2
+- Crie uma Procedure que lista os top N clientes de acordo com a data de primeira compra. O valor de N deve ser um parâmetro de entrada da sua Procedure.
+
+```sql
+CREATE OR ALTER PROCEDURE lista_top_clientes(@topn INT)
+AS
+BEGIN
+
+	SELECT TOP(@topn)
+		FirstName
+		EmailAdress,
+		DateFirstPurchase
+	FROM DimCustomer
+	WHERE CustomerType = 'person'
+	ORDER BY DateFirstPurchase
+
+END
+
+EXECUTE lista_top_clientes 100
+```
+
+
+### Aula 14: Resolução Exercício 3
+- Crie uma Procedure que recebe 2 argumentos: MÊS (de 1 a 12) e ANO (1996 a 2003). Sua Procedure deve listar todos os funcionários que foram contratados no mês/ano informado.
+
+```sql
+CREATE OR ALTER PROCEDURE lista_funcionarios(@mes INT, @ano INT)
+AS
+BEGIN
+
+	SELECT * FROM DimEmployee
+	WHERE DATEPART(MM, HireDate) = @mes AND DATEPAR(YYYY, HireDate) = @ano
+	ORDER BY HireDate
+
+END
+
+EXECUTE lista_funcionarios 1, 2000
+```
+
+
+### Aula 15: Resolução Exercícios 4, 5 e 6
+- Obs. Para os exercícios 4, 5 e 6, utilize os códigos abaixo.
+
+```sql
+DROP DATABASE AlugaFacil
+CREATE DATABASE AlugaFacil
+USE AlugaFacil
+
+CREATE TABLE Carro(
+	id_carro INT,
+	placa VARCHAR(100) NOT NULL,
+	modelo VARCHAR(100) NOT NULL,
+	tipo VARCHAR(100) NOT NULL,
+	valor FLOAT NOT NULL,
+	CONSTRAINT carro_id_carro_pk PRIMARY KEY(id_carro)
+)
+
+INSERT INTO Carro(id_carro, placa, modelo, tipo, valor) VALUES
+	(1, 'CRU-1111', 'Chevrolet Cruze', 'Sedan', 140000),
+	(2, 'ARG-2222', 'Fiat Argo', 'Hatch', 80000),
+	(3, 'COR-3333', 'Toyota Corolla', 'Sedan', 170000),
+	(4, 'TIG-4444', 'Caoa Chery Tiggo', 'SUV', 190000)
+```
+
+- 4. Crie uma Procedure que insere uma nova linha na tabela Carro. Essa nova linha deve conter os seguintes dados:
+
+```sql
+-- id = 5
+-- placa = GOL-5555
+-- modelo = Volkswagen Gol
+-- tipo = Hatch
+-- valor = 80000
+
+CREATE OR ALTER PROCEDURE cadastra_carro(@id INT, @placa VARCHAR(100), @modelo VARCHAR(100), @tipo VARCHAR(100), @valor INT)
+AS
+BEGIN
+	BEGIN TRANSACTION
+	INSERT INTO Carro(id_carro, placa, modelo, tipo, valor) VALUES
+	(@id, @placa, @modelo, @tipo, @valor)
+
+	COMMIT
+	PRINT 'Cadastrado com sucesso!'
+END
+
+EXECUTE cadastra carro 5, 'GOL-5555', 'Volkswagen Gol', 'Hatch', 80000
+```
+
+- 5. Crie uma Procedure que altera o valor de venda de um carro. A Procedure deve receber como parâmetros o id_carro e o novo valor.
+
+```sql
+CREATE OR ALTER PROCEDURE atera_valor(@id INT, @novo_valor FLOAT)
+AS
+BEGIN
+	BEGIN TRANSACTION
+	UPDATE Carro
+	SET valor = @novo_valor
+	WHERE id_carro = @id
+	COMMIT
+END
+
+EXECUTE altera_valor 1, 200000
+```
+
+- 6. Crie uma Precedure que exclui um carro a partir do id informado.
+
+```sql
+CREATE OR ALTER PROCEDURE delata_carro(@id INT)
+AS
+BEGIN
+	BEGIN TRANSACTION
+	DELETE FROM Carro
+	WHERE id_carro = @id
+	COMMIT
+END
+
+EXECUTE deleta_carro 1
+```
+
+
+---------------
+## 
+
 ### 
 
 ```sql
@@ -6581,7 +6898,181 @@ SELECT * FROM dbo.analisa_cores('Contoso')
 
 ```
 
+```sql
 
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
+
+```sql
+
+```
 
 
 
