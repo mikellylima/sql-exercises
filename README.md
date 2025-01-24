@@ -6858,64 +6858,301 @@ EXECUTE deleta_carro 1
 
 
 ---------------
-## 
+##  Módulo 25: Triggers DML 
+
+### Aula 2 de 8: O que é uma Trigger DML
+
+```sql
+/* Triggers DML
+
+-- Um Trigger é um gatilho que será disparado automaticamente quando acontecer um evento.
+
+-- Triggers podem ser disparadas por eventos DDL (CREATE, ALTER, DROP) e DML (INSERT, UPDATE, DELETE).
+
+
+-- Triggers DML
+
+-- 1. Uma Trigger DML é disparada quando um comando INSERT, UPDATE ou DELETE é executado sobre uma tabela ou view.
+
+-- 2. Na hora de criar uma trigger, podemos definir alguns elementos, podemos definir se ela será do tipo AFTER ou INSTEAD OF
+
+*/
+```
+
+
+### Aula 3: Criando uma Trigger DML - AFTER
+- Crie uma Trigger que seja disparada APÓS um evento INSERT, UPDATE, DELETE seja executado na tabela dCliente
+
+```sql
+CREATE OR ALTER TRIGGER tgClienteAlterado
+ON dCliente
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+	PRINT 'Os dados da tabela dCliente foram alterados'
+END
+
+INSERT INTO dCliente(nome_cliente, genero, data_de_nascimento, cpf) VALUES
+	('Zacarias Neto', 'M', '13/02/1999', '333.333.333-33')
+
+UPDATE dCliente
+SET cpf = '130.451.892-10'
+WHERE id_cliente = 11
+
+DELETE FROM dCliente
+WHERE id_cliente = 11
+```
+
+
+### Aula 4: Tabelas INSERTED e DELETED
+- Vamos alterar a trigger anterior para deixá-la mais clara.
+
+```sql
+CREATE OR ALTER TRIGGER tgClienteAlterado
+ON dCliente
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+	SELECT * FROM INSERTED -- retorna a linha inserida
+	SELECT * FROM DELETED -- retorna a linha deletada
+END
+
+-- UPDATE acontece um INSERTED e um DELETED
+```
+
+
+### Aula 5: Identificando na Trigger o Evento DML Relacionado
+
+
+```sql
+CREATE OR ALTER TRIGGER tgClienteAlterado
+ON dCliente
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+	IF EXISTS (SELECT_ * FROM INSERTED) AND EXISTS (SELECT * FROM DELETED)
+		PRINT 'Dados foram atualizados na tabela'
+	ELSE IF EXISTS (SELECT * FROM INSERTED)
+		PRINT 'Dados foram inseridos na tabela'
+	ELSE IF EXISTS (SELECT * FROM DELETED)
+		PRINT 'Dados foram excluídos na tabela'
+END
+```
+
+
+### Aula 6 e 7: Criando uma Trigger para Controle de Permissão de Cadastro - INSTEAD OF
+- Crie uma Trigger que seja disparada sempre EM VEZ de um INSERT, UPDATE e DELETE que for executado na tabela dCliente. O que deve acontecer: se o dia de cadastro for sábado ou domingo, não pode deixar alterar pois está fora do horário comercial.
+
+```sql
+SELECT FORMAT(GETDATE(), 'dddd')
+
+CREATE OR ALTER TRIGGER tgControleRegistros
+ON dCliente
+INSTEAD OF INSERT
+AS
+BEGIN
+	IF FORMAT(GETDATE(), 'dddd') IN ('sábado', 'domingo')
+	BEGIN
+		RAISERROR('O cadastro de clientes só pode ser feito de segunda à sexta'
+		ROLLBACK)
+	END
+	ELSE
+	BEGIN
+		INSERT INTO dCliente(nome_cliente, genero, data_de_nascimento, cpf)
+		SELECT i.nome_cliente, i.genero,i.data_de_nascimento, i.cpf FROM INSERTED i
+	END
+END
+
+INSERT INTO dCliente(nome_cliente, genero, data_de_nascimento, cpf) VALUES
+	()
+```
+
 
 ### 
+- Habilitando ou desabilitando uma Trigger DML
 
 ```sql
-
+ENABLE TRIGGER tgControleRegistros ON dCliente
 ```
 
-```sql
+- Habilitando ou desabilitando todas as Triggers DML de uma tabela
 
+```sql
+ENABLLE TREGGER ALL ON dCliente
+DISABLE TRIGGER ALL ON dCliente
 ```
 
-```sql
+- Excluindo uma Trigger DML
 
+```sql
+DROP TRIGGER tgControleRegistros
 ```
 
-```sql
 
+------------
+## Módulo 26: Triggers DDL
+
+### Aula 2: O que é uma Trigger DDL
+
+```sql
+/* Triggers DDL
+
+-- Um Trigger é um gatilho que será disparado automaticamente quando acontecer um evento.
+
+-- Triggers podem ser disparadas por eventos DDL (CREATE, ALTER, DROP) e DML (INSERT, UPDATE, DELETE).
+
+
+-- Triggers DDL
+
+-- Uma Trigger DML é disparada quando um comando CREATE, ALTER ou DROP é executado.
+
+*/
 ```
 
-```sql
 
+### Aula 3 de 4: Criando uma Trigger DDL
+
+```sql
+CREATE OR ALTER TRIGGER tgRecusarTabelas
+ON DATABASE
+FOR CREATE_TABLE, ALTER_TABLE, DROP_TABLE
+AS
+BEGIN
+	PRINT 'Não é permitido criação, alteração ou exclusão de tabelas'
+	ROLLBACK
+END
 ```
 
-```sql
 
+### Aula 4: Habilitando, Desabilitando e Excluindo uma Trigger DDL
+
+```sql
+-- Habilitando ou desabilitando uma trigger DDL
+
+DISABLE TRIGGER tgRecusarTabelas ON DATABASE
+ENABLE TRIGGER tgRecusarTabelas ON DATABASE
+
+-- Habilitando ou desabilitando todas as triggers DDL de uma tabela
+
+DISABLE TRIGGER ALL ON DATABASE
+ENABLE TRIGGER ALL ON DATABASE
+
+-- Excluindo uma trigger DDL
+
+DROP TRIGGER tgRecusarTabelas ON DATABASE
 ```
 
-```sql
 
+--------------
+## Módulo 27: Pivot Table
+
+### Aula 2: O que são Pivot Tables
+
+```sql
+SELECT
+	BrandName,
+	COUNT(ProductKey) AS Total_Produtos
+FROM
+	DimProduct
+GROUP BY BrandName
+
+
+SELECT
+	DepartmentName,
+	YEAR(HireDate) AS ano.
+	COUNT(EmployeeKey) AS Total_Funcionarios
+FROM
+	DimEmployee
+GROUP BY DepartmentName, YEAR(HireDate)
 ```
 
-```sql
 
+### Aula 3: Criando uma Pivot Table
+
+```sql
+SELECT
+	BrandName,
+	COUNT(ProductKey) AS Total_Produtos
+FROM
+	DimProduct
+GROUP BY BrandName
+
+-- 1º) O primeiro passo é selecionar os dados que serão usados como base para criação da Pivot Table
+
+-- 2º) Como não conseguimos aplicar o Pivot diretamente nos dados acima, precisaremos fazer isso indiretamente
+
+-- 3º) Agora sim podemos aplicar o Pivot, incluindo o cálculo desejado e os nomes das colunas a serem consideradas
+
+SELECT * FROM
+	(SELECT
+		ProductKey,
+		BrandName
+	FROM
+		DimProduct) as Dados
+PIVOT(
+	COUNT(ProductKey)
+	FOR BrandName
+	IN ([Northwind Traders]
+		,[Contoso]
+		,[Tailspin Toys]
+		,[Adventure Works]
+		,[Southridge Video]
+		,[Wide World Importers]
+		,[The Phone Company]
+		,[Fabrikam]
+		,[Litware]
+		,[A. Datum]
+		,[Proseware]
+	)
+) AS PivotTable
 ```
 
-```sql
 
-```
-
-```sql
-
-```
+### Aula 4 de 9: Adicionando Grupos de Linha à Pivot Table
+- Calculando o total de funcionários por departamento
 
 ```sql
+SELECT
+	DepartmentName,
+	COUNT(EmployeeKey) Total_Funcionarios
+FROM DimEmployee
+GROUP BY DepartmentName
 
-```
 
-```sql
 
-```
+SELECT * FROM 
+	(SELECT
+		EmployeeKey,
+		YEAR(HireDate),
+		DepartmentName
+	FROM DimEmployee) AS Dados
+PIVOT(
+	COUNT(EmployeeKey)
+	FOR DepartmentName
+	IN ([Tool Design]
+		,[Shipping and Receiving]
+		,[Sales]
+		,[Research and Development]
+		,[Quality Assurance]
+		,[Purchasing]
+		,[Production]
+		,[Production Control]
+		,[Marketing]
+		,[Information Services]
+		,[Human Resources]
+		,['Human Resources Contral]
+		,[Finance]
+		,[Facilities and Maintenance]
+		,[Executive]
+		,[Engineering]
+		,[Document Control])
+) AS PivotTable
 
-```sql
+-- Código para selecionar os DepartmentNames para inserir no IN da PivotTable
 
-```
-
-```sql
-
+SELECT DISTINCT
+	',' + QUOTENAME(TRIM(DepartmentName))
+FROM DimEmployee
 ```
 
 ```sql
