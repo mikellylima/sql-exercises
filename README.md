@@ -7108,7 +7108,7 @@ PIVOT(
 ```
 
 
-### Aula 4 de 9: Adicionando Grupos de Linha à Pivot Table
+### Aula 4: Adicionando Grupos de Linha à Pivot Table
 - Calculando o total de funcionários por departamento
 
 ```sql
@@ -7123,7 +7123,7 @@ GROUP BY DepartmentName
 SELECT * FROM 
 	(SELECT
 		EmployeeKey,
-		YEAR(HireDate),
+		YEAR(HireDate) AS Ano,
 		DepartmentName
 	FROM DimEmployee) AS Dados
 PIVOT(
@@ -7155,16 +7155,118 @@ SELECT DISTINCT
 FROM DimEmployee
 ```
 
-```sql
 
+### Aula 5: Ordenando Linhas e Colunas de uma Pivot Table
+
+```sql
+SELECT * FROM 
+	(SELECT
+		EmployeeKey,
+		YEAR(HireDate) AS Ano,
+		DepartmentName
+	FROM DimEmployee) AS Dados
+PIVOT(
+	COUNT(EmployeeKey)
+	FOR DepartmentName
+	IN ([Document Control]
+		, [Engineering]
+		, [Executive]
+		, [Facilities and Maintenance]
+		, [Finance]
+		, ['Human Resources Contral]
+		, [Human Resources]
+		, [Information Services]
+		, [Marketing]
+		, [Production Control]
+		, [Production]
+		, [Purchasing]
+		, [Quality Assurance]
+		, [Research and Development]
+		, [Sales]
+		, [Shipping and Receiving]
+		, [Tool Design])
+) AS PivotTable
+ORDER BY Ano
+
+-- Código para selecionar os DepartmentNames para inserir no IN da PivotTable em ordem alfabética
+
+SELECT DISTINCT
+	',' + QUOTENAME(TRIM(DepartmentName))
+FROM DimEmployee
+ORDER BY ',' + QUOTENAME(TRIM(DepartmentName))
 ```
 
-```sql
 
+### Aula 6: Adicionando mais linhas aos grupos
+
+```sql
+SELECT * FROM 
+	(SELECT
+		EmployeeKey,
+		YEAR(HireDate) AS aAno,
+		DATENAME(MM, HireDate) AS Mes
+		DepartmentName
+	FROM DimEmployee) AS Dados
+PIVOT(
+	COUNT(EmployeeKey)
+	FOR DepartmentName
+	IN ([Document Control]
+		, [Engineering]
+		, [Executive]
+		, [Facilities and Maintenance]
+		, [Finance]
+		, ['Human Resources Contral]
+		, [Human Resources]
+		, [Information Services]
+		, [Marketing]
+		, [Production Control]
+		, [Production]
+		, [Purchasing]
+		, [Quality Assurance]
+		, [Research and Development]
+		, [Sales]
+		, [Shipping and Receiving]
+		, [Tool Design])
+) AS PivotTable
+ORDER BY Ano, Mes
 ```
 
-```sql
 
+### Aula 8 e 9: Corrigindo a limitação da Pivot Table de forma dinâmica
+
+```sql
+DECLARE @NomeColunas NVARCHAR(MAX) = ''
+DECLARE @SQL NVARCHAR(MAX) = ''
+
+SELECT @NomeColunas += QUOTENAME(TRIM(DepartmentName)) + ','
+FROM
+	(SELECT DISTINCT
+		DepartmentName
+	FROM DimEmployee) AS Aux
+
+SET @NomeColunas = LEFT(@NomeColunas, LEN(@NomeColunas) - 1)
+
+-- TO IN não aceita a variável. Transformou-se o código em texto e armazenuo-se na variável @SQL
+
+SET @SQL = 
+'SELECT * FROM 
+	(SELECT
+		EmployeeKey,
+		YEAR(HireDate) AS aAno,
+		DATENAME(MM, HireDate) AS Mes
+		DepartmentName
+	FROM DimEmployee) AS Dados
+PIVOT(
+	COUNT(EmployeeKey)
+	FOR DepartmentName
+	IN (' + @NomeColunas + ')
+) AS PivotTable
+ORDER BY Ano'
+
+-- Executar uma procedure que transforma a variável @SQL em código e executa.
+
+EXECUTE sp_executesql @SQL
+-- 
 ```
 
 ```sql
